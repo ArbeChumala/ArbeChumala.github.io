@@ -10,6 +10,13 @@ let dx;
 let dy;
 let x;
 let y;
+let rectW = 20;
+let rectH= 100;
+let rectXL = 20;
+let rectXR = width-20;
+let rectYL;
+let rectYR;
+let rectDY = 5;
 
 function setup() {
   createCanvas(400, 400);
@@ -18,6 +25,8 @@ function setup() {
   y = width/2;
   dx = random(5,20);
   dy = random(3,10);
+  rectYL = height/2;
+  rectYR = height/2;
 }
 
 function draw() {
@@ -25,6 +34,8 @@ function draw() {
   checkCollisions();
   moveBall();
   displayBall();
+  displayLeftRectangle();
+  displayRightRectangle();
 }
 
 function checkCollisions(){
@@ -40,4 +51,9 @@ function moveBall(){
 
 function displayBall(){
   circle(x, y, 20);
+}
+
+function displayLeftRectangle(){
+  rect(rectXL,rectYL, rectW, rectH);
+  rect(rectXR, rectYR, rectW, rectH);
 }
