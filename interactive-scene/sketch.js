@@ -34,6 +34,7 @@ function draw() {
   checkCollisions();
   moveBall();
   displayBall();
+  moveRectangles();
   displayLeftRectangle();
   displayRightRectangle();
 }
@@ -41,6 +42,15 @@ function draw() {
 function checkCollisions(){
   if (y>= width || y <= 0){
     dy *= -1;
+  }
+}
+
+function moveRectangles(){
+  if (keyIsDown(38)){
+    rectYR += rectDY;
+  }
+  else if (keyIsDown(40)){
+    rectYR -= rectDY;
   }
 }
 
