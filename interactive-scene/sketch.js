@@ -13,13 +13,14 @@ let y;
 let rectW = 20;
 let rectH= 100;
 let rectXL = 20;
-let rectXR = width-20;
+let rectXR;
 let rectYL;
 let rectYR;
-let rectDY = 5;
+let rectDY = 10;
+let radius = 20;
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight);
   noStroke();
   x = width/2;
   y = width/2;
@@ -27,6 +28,7 @@ function setup() {
   dy = random(3,10);
   rectYL = height/2;
   rectYR = height/2;
+  rectXR = width-40;
 }
 
 function draw() {
@@ -35,22 +37,33 @@ function draw() {
   moveBall();
   displayBall();
   moveRectangles();
-  displayLeftRectangle();
-  displayRightRectangle();
+  displayRectangles();
 }
 
 function checkCollisions(){
-  if (y>= width || y <= 0){
+  if (y>= height || y <= 0){
     dy *= -1;
+  }
+  if (y + radius > rectYR && y - radius < rectYR+rectH && x + radius > rectXR && x + radius < rectXR + 20){
+    dx *= -1;
+  }
+  if (y + radius > rectYL && y - radius < rectYL+rectH && x - radius < rectXL + 20 && x - radius > rectXL){
+    dx *= -1;
   }
 }
 
 function moveRectangles(){
   if (keyIsDown(38)){
-    rectYR += rectDY;
+    rectYR -= rectDY;
   }
   else if (keyIsDown(40)){
-    rectYR -= rectDY;
+    rectYR += rectDY;
+  }
+  if (keyIsDown(87)){
+    rectYL -= rectDY;
+  }
+  else if (keyIsDown(83)){
+    rectYL += rectDY;
   }
 }
 
@@ -60,10 +73,10 @@ function moveBall(){
 }
 
 function displayBall(){
-  circle(x, y, 20);
+  circle(x, y, radius);
 }
 
-function displayLeftRectangle(){
+function displayRectangles(){
   rect(rectXL,rectYL, rectW, rectH);
   rect(rectXR, rectYR, rectW, rectH);
 }

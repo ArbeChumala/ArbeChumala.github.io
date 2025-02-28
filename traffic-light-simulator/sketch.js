@@ -60,4 +60,5 @@ function checkSwitchTime(){
       lastSwitch = millis();
     }
   }
+
 }
