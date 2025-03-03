@@ -24,9 +24,11 @@ let rightPoints = 0;
 
 function setup(){
   createCanvas(windowWidth, windowHeight);
-  noStroke();
+  noStroke(); 
   textAlign(CENTER, CENTER);
   setupBall();
+  fill(255);
+  textFont('Source Serif Pro');
   rectYL = height/2;
   rectYR = height/2;
   rectXR = width-40;
@@ -44,9 +46,9 @@ function draw(){
 }
 
 function displayPoints(){
-  textSize(40)
-  text(leftPoints, width/2-40, 40);
-  text(rightPoints, width/2-40, 40);
+  textSize(40);
+  text(str(leftPoints), width/2-40, 40);
+  text(str(rightPoints), width/2+40, 40);
 }
 
 function setupBall(){
