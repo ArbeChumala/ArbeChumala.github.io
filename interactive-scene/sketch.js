@@ -18,26 +18,60 @@ let rectYL;
 let rectYR;
 let rectDY = 10;
 let radius = 20;
+let mode = "waiting";
+let leftPoints = 0;
+let rightPoints = 0;
 
-function setup() {
+function setup(){
   createCanvas(windowWidth, windowHeight);
   noStroke();
-  x = width/2;
-  y = width/2;
-  dx = random(5,20);
-  dy = random(3,10);
+  textAlign(CENTER, CENTER);
+  setupBall();
   rectYL = height/2;
   rectYR = height/2;
   rectXR = width-40;
 }
 
-function draw() {
+function draw(){
   background(0);
   checkCollisions();
   moveBall();
   displayBall();
   moveRectangles();
   displayRectangles();
+  resetBallIfNeeded();
+  displayPoints();
+}
+
+function displayPoints(){
+  textSize(40)
+  text(leftPoints, width/2-40, 40);
+  text(rightPoints, width/2-40, 40);
+}
+
+function setupBall(){
+  mode = "waiting";
+  x = width/2;
+  y = height/2;
+  dx = random(5,20);
+  dy = random(3,10);
+}
+
+function keyPressed(){
+  if (keyIsDown(32) && mode === "waiting"){
+    mode = "game";
+  }
+}
+
+function resetBallIfNeeded(){
+  if (x > width){
+    rightPoints += 1;
+    setupBall();
+  }
+  else if (x < 0){
+    leftPoints += 1;
+    setupBall();
+  }
 }
 
 function checkCollisions(){
@@ -68,8 +102,13 @@ function moveRectangles(){
 }
 
 function moveBall(){
-  x += dx;
-  y += dy;
+  if (mode === "game"){
+    x += dx;
+    y += dy;
+  }
+  else{
+    setupBall();
+  }
 }
 
 function displayBall(){
