@@ -10,25 +10,28 @@ let dx;
 let dy;
 let x;
 let y;
-let rectW = 20;
-let rectH= 100;
+let rectW = 30;
+let rectH= 150;
 let rectXL = 20;
 let rectXR;
 let rectYL;
 let rectYR;
 let rectDY = 10;
-let radius = 20;
-let mode = "waiting";
+let radius = 35;
+let mode = "game";
+let difficulty = "impossible";
 let leftPoints = 0;
 let rightPoints = 0;
-let poppins;
+let minecraftFont;
 let theBackground;
+let pongBall;
 
 function setup(){
   createCanvas(windowWidth, windowHeight);
   noStroke(); 
+  imageMode(CENTER, CENTER);
   textAlign(CENTER, CENTER);
-  textFont(poppins);
+  textFont(minecraftFont);
   setupBall();
   fill(255);
   rectYL = height/2;
@@ -40,8 +43,8 @@ function draw(){
   if (mode === "start"){
     displayStartScreen();
   }
-  if (mode === "game" || mode === "waiting"){
-    image(gameBackground, 0, 0);
+  else if (mode === "game" || mode === "waiting"){
+    image(gameBackground, width/2, height/2);
     checkCollisions();
     moveBall();
     displayBall();
@@ -52,14 +55,26 @@ function draw(){
   }
 }
 
+function modifyTitle(){
+  titleText.resize(width + 100, 0);
+  width = titleText.width;
+}
+
 function displayPoints(){
   textSize(40);
   text(str(leftPoints), width/2-40, 40);
   text(str(rightPoints), width/2+40, 40);
 }
 
+function displayStartScreen(){
+  image(gameBackground, width/2, height/2);
+  image(titleText, width/2, 100, titleText.width);
+}
+
 function setupBall(){
-  mode = "waiting";
+  if (mode === "game"){
+    mode = "waiting";
+  }
   x = width/2;
   y = height/2;
   dx = random(5,20);
@@ -68,7 +83,9 @@ function setupBall(){
 
 function preload(){
   gameBackground = loadImage("/assets/pong-background.png");
-  poppins = loadFont("/assets/poppins.ttf");
+  minecraftFont = loadFont("/assets/minecraft-font.ttf");
+  pongBall = loadImage("/assets/snowball.webp");
+  titleText = loadImage("/assets/pong-craft.png");
 }
 
 function keyPressed(){
@@ -94,24 +111,36 @@ function checkCollisions(){
   }
   if (y + radius > rectYR && y - radius < rectYR+rectH && x + radius > rectXR && x + radius < rectXR + 20){
     dx *= -1;
+    x = rectXR - radius;
   }
   if (y + radius > rectYL && y - radius < rectYL+rectH && x - radius < rectXL + 20 && x - radius > rectXL){
     dx *= -1;
+    x = rectXL +radius
   }
 }
 
 function moveRectangles(){
   if (keyIsDown(38)){
     rectYR -= rectDY;
-  }
+  } 
   else if (keyIsDown(40)){
     rectYR += rectDY;
   }
-  if (keyIsDown(87)){
-    rectYL -= rectDY;
+  if (difficulty === "normal"){
+    if (keyIsDown(87)){
+      rectYL -= rectDY;
+    }
+    else if (keyIsDown(83)){
+      rectYL += rectDY;
+    }
   }
-  else if (keyIsDown(83)){
-    rectYL += rectDY;
+  else if (difficulty === "impossible" && x < 3*width/4){
+    if (rectYL > y){
+      rectYL -= rectDY;
+    }
+    else if (rectYL < y - rectH/2){
+      rectYL += rectDY;
+    }
   }
 }
 
@@ -126,7 +155,7 @@ function moveBall(){
 }
 
 function displayBall(){
-  circle(x, y, radius);
+  image(pongBall, x, y, 2*radius, 2*radius);
 }
 
 function displayRectangles(){
