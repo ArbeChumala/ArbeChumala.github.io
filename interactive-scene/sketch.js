@@ -31,21 +31,25 @@ function setup(){
   textFont(poppins);
   setupBall();
   fill(255);
-  textFont('Source Serif Pro');
   rectYL = height/2;
   rectYR = height/2;
   rectXR = width-40;
 }
 
 function draw(){
-  image(theBackground, 0, 0);
-  checkCollisions();
-  moveBall();
-  displayBall();
-  moveRectangles();
-  displayRectangles();
-  resetBallIfNeeded();
-  displayPoints();
+  if (mode === "start"){
+    displayStartScreen();
+  }
+  if (mode === "game" || mode === "waiting"){
+    image(gameBackground, 0, 0);
+    checkCollisions();
+    moveBall();
+    displayBall();
+    moveRectangles();
+    displayRectangles();
+    resetBallIfNeeded();
+    displayPoints();
+  }
 }
 
 function displayPoints(){
@@ -63,7 +67,7 @@ function setupBall(){
 }
 
 function preload(){
-  theBackground = loadImage("/assets/pong-background.png");
+  gameBackground = loadImage("/assets/pong-background.png");
   poppins = loadFont("/assets/poppins.ttf");
 }
 
