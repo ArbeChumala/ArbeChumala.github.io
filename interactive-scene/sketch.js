@@ -21,11 +21,14 @@ let radius = 20;
 let mode = "waiting";
 let leftPoints = 0;
 let rightPoints = 0;
+let poppins;
+let theBackground;
 
 function setup(){
   createCanvas(windowWidth, windowHeight);
   noStroke(); 
   textAlign(CENTER, CENTER);
+  textFont(poppins);
   setupBall();
   fill(255);
   textFont('Source Serif Pro');
@@ -35,7 +38,7 @@ function setup(){
 }
 
 function draw(){
-  background(0);
+  image(theBackground, 0, 0);
   checkCollisions();
   moveBall();
   displayBall();
@@ -59,6 +62,11 @@ function setupBall(){
   dy = random(3,10);
 }
 
+function preload(){
+  theBackground = loadImage("/assets/pong-background.png");
+  poppins = loadFont("/assets/poppins.ttf");
+}
+
 function keyPressed(){
   if (keyIsDown(32) && mode === "waiting"){
     mode = "game";
@@ -67,11 +75,11 @@ function keyPressed(){
 
 function resetBallIfNeeded(){
   if (x > width){
-    rightPoints += 1;
+    leftPoints += 1;
     setupBall();
   }
   else if (x < 0){
-    leftPoints += 1;
+    rightPoints += 1;
     setupBall();
   }
 }
