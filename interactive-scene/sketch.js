@@ -12,7 +12,7 @@ let dy;
 let x;
 let y;
 let rectW = 30;
-let rectH= 150;
+let rectH = 150;
 let rectXL = 20;
 let rectXR;
 let rectYL;
@@ -27,18 +27,28 @@ let minecraftFont;
 let theBackground;
 let pongBall;
 let backgroundMusic;
+let windowWidthRatio;
 
 function setup(){
-  createCanvas(windowWidth, windowHeight);
+  setDimensions();
   noStroke(); 
   imageMode(CENTER, CENTER);
   textAlign(CENTER, CENTER);
   textFont(minecraftFont);
   setupBall();
   fill(255);
+}
+
+function setDimensions(){
+  createCanvas(windowWidth, windowHeight);
   rectYL = height/2;
   rectYR = height/2;
   rectXR = width-40;
+  windowWidthRatio = width/1440;
+}
+
+function windowResized(){
+  setDimensions();
 }
 
 function draw(){
@@ -81,25 +91,28 @@ function displayPoints(){
 
 function displayStartScreen(){
   image(startBackground, width/2, height/2);
-  image(titleText, width/2, 100, titleText.width);
+  image(titleText, width/2, 100, titleText.width*windowWidthRatio, titleText.height*windowWidthRatio);
 }
 
 function colourButtons(){
-  if (mouseX > width/2 - pvpButton.width*0.25 && mouseX < width/2 + pvpButton.width*0.25 && mouseY < height/2 + pvpButton.height*0.25 && mouseY > height/2-pvpButton.height*0.25){
+  let widthBuffer = pvpButton.width*0.25*windowWidthRatio;
+  let heightBuffer = pvpButton.height*0.25*windowWidthRatio;
+
+  if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer && mouseY > height/2-heightBuffer){
     tint('grey');
-    image(pvpButton, width/2, height/2, pvpButton.width*0.5, pvpButton.height*0.5);
+    image(pvpButton, width/2, height/2, pvpButton.width*0.5*windowWidthRatio, pvpButton.height*0.5*windowWidthRatio);
     noTint();
   }
   else{
-    image(pvpButton, width/2, height/2, pvpButton.width*0.5, pvpButton.height*0.5);
+    image(pvpButton, width/2, height/2, 2*widthBuffer, 2*heightBuffer);
   }
-  if (mouseX > width/2 - pvbButton.width*0.25 && mouseX < width/2 + pvbButton.width*0.25 && mouseY < height/2 + pvbButton.height*0.25 + 200 && mouseY > height/2-pvbButton.height*0.25 + 150){
+  if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer + 150 && mouseY > height/2-heightBuffer + 150){
     tint('grey');
-    image(pvbButton, width/2, height/2 + 150, pvbButton.width*0.5, pvbButton.height*0.5);
+    image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
     noTint();
   }
   else{
-    image(pvbButton, width/2, height/2 + 150, pvbButton.width*0.5, pvbButton.height*0.5);
+    image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
   }
 }
 
