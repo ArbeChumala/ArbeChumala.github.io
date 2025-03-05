@@ -4,6 +4,7 @@
 //
 // Extra for Experts:
 // - learned to add and use sound files (sound effects, background music)
+// - implemented the mouse scroller for volume control
 // - uploaded custom fonts
 
 
@@ -28,13 +29,36 @@ let theBackground;
 let pongBall;
 let backgroundMusic;
 let windowWidthRatio;
+let musicIsPlaying = false;
+let settingsBackground;
+let musicVolume = 1;
+let settingsButton;
+let homeButton;
+let activeButton = "none";
+
+function preload(){
+  startBackground = loadImage("/assets/main-background.png");
+  gameBackground = loadImage("/assets/pong-background.png");
+  minecraftFont = loadFont("/assets/minecraft-font.ttf");
+  pongBall = loadImage("/assets/snowball.webp");
+  pvpButton = loadImage("assets/pvp-button.png");
+  pvbButton = loadImage("assets/pvb-button.png");
+  titleText = loadImage("/assets/pong-craft.png");
+  backgroundMusic = loadSound("/assets/sweden.mp3");
+  boingSound = loadSound("/assets/boing.mp3");
+  clickSound = loadSound("/assets/minecraft-click.mp3");
+  settingsBackground = loadImage("/assets/settings-background.webp");
+  settingsButton = loadImage("/assets/settings-icon.png");
+  homeButton = loadImage("/assets/house-icon.png");
+}
 
 function setup(){
   setDimensions();
   noStroke(); 
-  imageMode(CENTER, CENTER);
-  textAlign(CENTER, CENTER);
+  imageMode(CENTER);
+  textAlign(CENTER);
   textFont(minecraftFont);
+  textSize(30);
   setupBall();
   fill(255);
 }
@@ -52,9 +76,11 @@ function windowResized(){
 }
 
 function draw(){
+  backgroundMusic.setVolume(musicVolume/10);
   if (mode === "start"){
     displayStartScreen();
     colourButtons();
+    displaySettingsButton();
   }
   else if (mode === "game" || mode === "waiting"){
     image(gameBackground, width/2, height/2);
@@ -65,33 +91,92 @@ function draw(){
     displayRectangles();
     resetBallIfNeeded();
     displayPoints();
+    displaySettingsButton();
+    displayHomeButton();
+  }
+  else{
+    displaySettingsMenu();
+    displayHomeButton();
+  }
+}
+
+function displaySettingsButton(){
+  image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+
+  if (mouseX > width - 40 - 30*windowWidthRatio && mouseX < width - 40 + 30*windowWidthRatio && mouseY < 40 + 30*windowWidthRatio && mouseY > 40 - 30*windowWidthRatio){
+    tint('grey');
+    image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+    activeButton = "settings";
+    noTint();
+  }
+  else{
+    image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+  }
+}
+
+function displayHomeButton(){
+  image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+
+  if (mouseX > 40 - 30*windowWidthRatio && mouseX < 40 + 30*windowWidthRatio && mouseY < 40 + 30*windowWidthRatio && mouseY > 40 - 30*windowWidthRatio){
+    tint('grey');
+    image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+    activeButton = "start";
+    noTint();
+  }
+  else{
+    image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+  }
+}
+
+
+function displaySettingsMenu(){
+  image(settingsBackground, width/2, height/2);
+  text("Use Mouse Wheel to Change Volume", width/2, height/2 - 100);
+  text(musicVolume, width/2, height/2);
+}
+
+function mouseWheel(event){
+  if (mode === "settings"){
+    if (event.delta > 0 && musicVolume < 10){
+      musicVolume += 1;
+    }
+    else if (event.delta < 0 && musicVolume > 0){
+      musicVolume -= 1;
+    }
   }
 }
 
 function mouseClicked(){
-  if (mouseX > width/2 - pvpButton.width*0.25 && mouseX < width/2 + pvpButton.width*0.25 && mouseY < height/2 + pvpButton.height*0.25 && mouseY > height/2-pvpButton.height*0.25){
-    mode = "waiting";
-    difficulty = "normal";
+  if (!musicIsPlaying){
+    backgroundMusic.loop();
+    musicIsPlaying = true;
   }
-  else if (mouseX > width/2 - pvbButton.width*0.25 && mouseX < width/2 + pvbButton.width*0.25 && mouseY < height/2 + pvbButton.height*0.25 + 200 && mouseY > height/2-pvbButton.height*0.25 + 150){
-    mode = "waiting";
-    difficulty = "impossible";
+  if (activeButton !== "none"){
+    clickSound.play();
+    if (activeButton === "pvp"){
+      mode = "waiting";
+      difficulty = "normal";
+    }
+    else if (activeButton === "pvb"){
+      mode = "waiting";
+      difficulty = "impossible";
+    }
+    else{
+      mode = activeButton;
+    }
   }
-}
-function modifyTitle(){
-  titleText.resize(width + 100, 0);
-  width = titleText.width;
 }
 
 function displayPoints(){
   textSize(40);
-  text(str(leftPoints), width/2-40, 40);
-  text(str(rightPoints), width/2+40, 40);
+  text(str(leftPoints), width/2-40, 60*windowWidthRatio);
+  text(str(rightPoints), width/2+40, 60*windowWidthRatio);
 }
 
 function displayStartScreen(){
   image(startBackground, width/2, height/2);
   image(titleText, width/2, 100, titleText.width*windowWidthRatio, titleText.height*windowWidthRatio);
+  text("Click anywhere for music!", width/2, 200);
 }
 
 function colourButtons(){
@@ -100,7 +185,8 @@ function colourButtons(){
 
   if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer && mouseY > height/2-heightBuffer){
     tint('grey');
-    image(pvpButton, width/2, height/2, pvpButton.width*0.5*windowWidthRatio, pvpButton.height*0.5*windowWidthRatio);
+    image(pvpButton, width/2, height/2, 2*widthBuffer, 2*heightBuffer);
+    activeButton = "pvb";
     noTint();
   }
   else{
@@ -109,6 +195,7 @@ function colourButtons(){
   if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer + 150 && mouseY > height/2-heightBuffer + 150){
     tint('grey');
     image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
+    activeButton = "pvb";
     noTint();
   }
   else{
@@ -126,18 +213,7 @@ function setupBall(){
   dy = random(3,10);
 }
 
-function preload(){
-  startBackground = loadImage("/assets/main-background.png");
-  gameBackground = loadImage("/assets/pong-background.png");
-  minecraftFont = loadFont("/assets/minecraft-font.ttf");
-  pongBall = loadImage("/assets/snowball.webp");
-  pvpButton = loadImage("assets/pvp-button.png");
-  pvbButton = loadImage("assets/pvb-button.png");
-  titleText = loadImage("/assets/pong-craft.png");
-  backgroundMusic = loadSound("/assets/sweden.mp3");
-  boingSound = loadSound("/assets/boing.mp3");
-  clickSound = loadSound("/assets/minecraft-click.mp3");
-}
+
 
 function keyPressed(){
   if (keyIsDown(32) && mode === "waiting"){
