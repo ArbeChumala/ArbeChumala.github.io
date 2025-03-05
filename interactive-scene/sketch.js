@@ -91,8 +91,8 @@ function setDimensions(){
   windowWidthRatio = width/1440;
 }
 
-//allows resizing of the canvas at any moment necessary
 function windowResized(){
+  //allows resizing of the canvas at any moment necessary
   setDimensions();
 }
 
@@ -100,7 +100,7 @@ function draw(){
   //start screen
   if (mode === "start"){
     displayStartScreen();
-    colourButtons();
+    displayGameButtons();
     displaySettingsButton();
   }
 
@@ -125,22 +125,11 @@ function draw(){
   }
 }
 
-function displaySettingsButton(){
-  //displays settings button
-  image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
-
-  //darkens button when mouse is hovering - activeButton communicates that it is being hovered over (see mouseClicked())
-  if (mouseX > width - 40 - 30*windowWidthRatio && mouseX < width - 40 + 30*windowWidthRatio && mouseY < 40 + 30*windowWidthRatio && mouseY > 40 - 30*windowWidthRatio){
-    tint('grey');
-    image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
-    noTint();
-    activeButton = "settings";
-  }
-
-  //displays without darkening when not hovered over
-  else{
-    image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
-  }
+function displayStartScreen(){
+  //displays background and title text for the start screen
+  image(startBackground, width/2, height/2);
+  image(titleText, width/2, 100, titleText.width*windowWidthRatio, titleText.height*windowWidthRatio);
+  text("Click anywhere for music!", width/2, 200);
 }
 
 function displayHomeButton(){
@@ -158,15 +147,71 @@ function displayHomeButton(){
   //displays without darkening when not hovered over
   else{
     image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+    if (activeButton === "start"){
+      activeButton = "none";
+    }
   }
 }
 
+function displaySettingsButton(){
+  //displays settings button
+  image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+
+  //darkens button when mouse is hovering - activeButton communicates that it is being hovered over (see mouseClicked())
+  if (mouseX > width - 40 - 30*windowWidthRatio && mouseX < width - 40 + 30*windowWidthRatio && mouseY < 40 + 30*windowWidthRatio && mouseY > 40 - 30*windowWidthRatio){
+    tint('grey');
+    image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+    noTint();
+    activeButton = "settings";
+  }
+
+  //displays without darkening when not hovered over and resets activeButton
+  else{
+    image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
+    if (activeButton === "settings"){
+      activeButton = "none";
+    }
+  }
+}
 
 function displaySettingsMenu(){
   //displays music volume and settings background
   image(settingsBackground, width/2, height/2);
   text("Use Mouse Wheel to Change Volume", width/2, height/2 - 100);
   text(musicVolume, width/2, height/2);
+}
+
+function mouseClicked(){
+  //only starts track if music is not playing - also, I used mouseClicked because music requires user engagement to begin playing
+  if (!musicIsPlaying){
+    backgroundMusic.loop();
+    musicIsPlaying = true;
+  }
+
+  //only changes scenes and plays click noise if the mouse clicks a button
+  if (activeButton !== "none"){
+    clickSound.play();
+    
+    //activates two player mode
+    if (activeButton === "pvp"){
+      mode = "waiting";
+      difficulty = "normal";
+      activeButton = "none";
+    }
+
+    //activates one player mode
+    else if (activeButton === "pvb"){
+      mode = "waiting";
+      difficulty = "impossible";
+      activeButton = "none";
+    }
+
+    //activates start or settings mode
+    else{
+      mode = activeButton;
+      activeButton = "none";
+    }
+  }
 }
 
 function mouseWheel(event){
@@ -184,64 +229,8 @@ function mouseWheel(event){
   }
 }
 
-function mouseClicked(){
-  if (!musicIsPlaying){
-    backgroundMusic.loop();
-    musicIsPlaying = true;
-  }
-  if (activeButton !== "none"){
-    clickSound.play();
-    if (activeButton === "pvp"){
-      mode = "waiting";
-      difficulty = "normal";
-    }
-    else if (activeButton === "pvb"){
-      mode = "waiting";
-      difficulty = "impossible";
-    }
-    else{
-      mode = activeButton;
-    }
-  }
-}
-
-function displayPoints(){
-  textSize(40);
-  text(str(leftPoints), width/2-40, 60*windowWidthRatio);
-  text(str(rightPoints), width/2+40, 60*windowWidthRatio);
-}
-
-function displayStartScreen(){
-  image(startBackground, width/2, height/2);
-  image(titleText, width/2, 100, titleText.width*windowWidthRatio, titleText.height*windowWidthRatio);
-  text("Click anywhere for music!", width/2, 200);
-}
-
-function colourButtons(){
-  let widthBuffer = pvpButton.width*0.25*windowWidthRatio;
-  let heightBuffer = pvpButton.height*0.25*windowWidthRatio;
-
-  if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer && mouseY > height/2-heightBuffer){
-    tint('grey');
-    image(pvpButton, width/2, height/2, 2*widthBuffer, 2*heightBuffer);
-    activeButton = "pvb";
-    noTint();
-  }
-  else{
-    image(pvpButton, width/2, height/2, 2*widthBuffer, 2*heightBuffer);
-  }
-  if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer + 150 && mouseY > height/2-heightBuffer + 150){
-    tint('grey');
-    image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
-    activeButton = "pvb";
-    noTint();
-  }
-  else{
-    image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
-  }
-}
-
 function setupBall(){
+  //places the ball in the centre of the screen and chooses a x and y speed
   if (mode === "game"){
     mode = "waiting";
   }
@@ -251,15 +240,59 @@ function setupBall(){
   dy = random(3,10);
 }
 
+function displayPoints(){
+  //displays points for each player/bot
+  text(str(leftPoints), width/2-40, 60*windowWidthRatio);
+  text(str(rightPoints), width/2+40, 60*windowWidthRatio);
+}
 
+function displayGameButtons(){
+  //local variables to use as shortcuts below (distance from centre point to each width/height)
+  let widthBuffer = pvpButton.width*0.25*windowWidthRatio;
+  let heightBuffer = pvpButton.height*0.25*windowWidthRatio;
+
+  //tints pvp button if it is being hovered over - changes activeButton
+  if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer && mouseY > height/2-heightBuffer){
+    tint('grey');
+    image(pvpButton, width/2, height/2, 2*widthBuffer, 2*heightBuffer);
+    noTint();
+    activeButton = "pvp";
+  }
+
+  //removes active status
+  else{
+    image(pvpButton, width/2, height/2, 2*widthBuffer, 2*heightBuffer);
+    if (activeButton === "pvp"){
+      activeButton = "none";
+    }
+  }
+
+  //tints pvb button if it is being hovered over - changes activeButton
+  if (mouseX > width/2 - widthBuffer && mouseX < width/2 + widthBuffer && mouseY < height/2 + heightBuffer + 150 && mouseY > height/2-heightBuffer + 150){
+    tint('grey');
+    image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
+    noTint();
+    activeButton = "pvb";
+  }
+
+  //removes active status
+  else{
+    image(pvbButton, width/2, height/2 + 150, 2*widthBuffer, 2*heightBuffer);
+    if (activeButton === "pvb"){
+      activeButton = "none";
+    }
+  }
+}
 
 function keyPressed(){
+  //space bar allows the game to begin
   if (keyIsDown(32) && mode === "waiting"){
     mode = "game";
   }
 }
 
 function resetBallIfNeeded(){
+  //awards points based on where the ball exited the screen (right exit = left point)
   if (x > width){
     leftPoints += 1;
     setupBall();
@@ -271,10 +304,12 @@ function resetBallIfNeeded(){
 }
 
 function checkCollisions(){
+  //bounces off of the top and bottom of the screen
   if (y>= height || y <= 0){
     dy *= -1;
     boingSound.play();
   }
+  //bounces off of the moving rectangles
   if (y + radius > rectYR && y - radius < rectYR+rectH && x + radius > rectXR && x + radius < rectXR + 20 || y + radius > rectYL && y - radius < rectYL+rectH && x - radius < rectXL + 20 && x - radius > rectXL){
     dx *= -1.1;
     boingSound.play();
@@ -282,20 +317,25 @@ function checkCollisions(){
 }
 
 function moveRectangles(){
-  if (keyIsDown(38)){
+  //arrow keys control the right hand rectangle as long as it stays within the screen
+  if (keyIsDown(38) && rectYR > 0){
     rectYR -= rectDY;
   } 
-  else if (keyIsDown(40)){
+  else if (keyIsDown(40) && rectYR < height-rectH){
     rectYR += rectDY;
   }
+
+  //w and s control the left rectangle during two player mode as long as it stays within the screen
   if (difficulty === "normal"){
-    if (keyIsDown(87)){
+    if (keyIsDown(87) && rectYL > 0){
       rectYL -= rectDY;
     }
-    else if (keyIsDown(83)){
+    else if (keyIsDown(83) && rectYL < height-rectH){
       rectYL += rectDY;
     }
   }
+
+  //robot controller acts based on the y coordinate of the ball
   else if (difficulty === "impossible" && x < 3*width/4){
     if (rectYL > y){
       rectYL -= rectDY;
@@ -307,20 +347,20 @@ function moveRectangles(){
 }
 
 function moveBall(){
+  //ball only moves during "game" mode based on dy and dx
   if (mode === "game"){
     x += dx;
     y += dy;
   }
-  else{
-    setupBall();
-  }
 }
 
 function displayBall(){
+  //displays the ball
   image(pongBall, x, y, 2*radius, 2*radius);
 }
 
 function displayRectangles(){
+  //displays the rectangles
   rect(rectXL,rectYL, rectW, rectH);
   rect(rectXR, rectYR, rectW, rectH);
 }
