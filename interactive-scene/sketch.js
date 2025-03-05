@@ -7,11 +7,14 @@
 // - implemented the mouse scroller for volume control
 // - uploaded custom fonts
 
-
+//pong ball characteristics
 let dx;
 let dy;
 let x;
 let y;
+let radius = 35;
+
+//rectangle characteristics
 let rectW = 30;
 let rectH = 150;
 let rectXL = 20;
@@ -19,24 +22,37 @@ let rectXR;
 let rectYL;
 let rectYR;
 let rectDY = 10;
-let radius = 35;
+
+//state variables
+let activeButton = "none";
 let mode = "start";
 let difficulty = "normal";
+
+//point systen
 let leftPoints = 0;
 let rightPoints = 0;
-let minecraftFont;
-let theBackground;
-let pongBall;
-let backgroundMusic;
-let windowWidthRatio;
-let musicIsPlaying = false;
-let settingsBackground;
+
+//music settings
 let musicVolume = 1;
+let musicIsPlaying = false;
+
+//element placeholder variables
+let startBackground;
+let gameBackground;
+let settingsBackground;
 let settingsButton;
 let homeButton;
-let activeButton = "none";
+let pvbButton;
+let pvpButton;
+let minecraftFont;
+let pongBall;
+let titleText;
+let backgroundMusic;
+let boingSound;
+let clickSound;
 
 function preload(){
+  //loads all images, sounds, and fonts before draw() is called
   startBackground = loadImage("/assets/main-background.png");
   gameBackground = loadImage("/assets/pong-background.png");
   minecraftFont = loadFont("/assets/minecraft-font.ttf");
@@ -53,35 +69,42 @@ function preload(){
 }
 
 function setup(){
+  //sets preferences for text size, fill, and font
   setDimensions();
+  setupBall();
   noStroke(); 
   imageMode(CENTER);
   textAlign(CENTER);
   textFont(minecraftFont);
   textSize(30);
-  setupBall();
   fill(255);
 }
 
 function setDimensions(){
+  //creates the canvas based on window size and defines variables based on canvas width and height
   createCanvas(windowWidth, windowHeight);
   rectYL = height/2;
   rectYR = height/2;
   rectXR = width-40;
+
+  //1440 pixels is the width of my machine - I use this ratio as a reference point when resizing elements
   windowWidthRatio = width/1440;
 }
 
+//allows resizing of the canvas at any moment necessary
 function windowResized(){
   setDimensions();
 }
 
 function draw(){
-  backgroundMusic.setVolume(musicVolume/10);
+  //start screen
   if (mode === "start"){
     displayStartScreen();
     colourButtons();
     displaySettingsButton();
   }
+
+  //both "game" and "waiting" are used during gameplay - "waiting" is used between rounds (after the ball goes out)
   else if (mode === "game" || mode === "waiting"){
     image(gameBackground, width/2, height/2);
     checkCollisions();
@@ -94,6 +117,8 @@ function draw(){
     displaySettingsButton();
     displayHomeButton();
   }
+
+  //the only other mode is "settings"
   else{
     displaySettingsMenu();
     displayHomeButton();
@@ -101,28 +126,36 @@ function draw(){
 }
 
 function displaySettingsButton(){
+  //displays settings button
   image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
 
+  //darkens button when mouse is hovering - activeButton communicates that it is being hovered over (see mouseClicked())
   if (mouseX > width - 40 - 30*windowWidthRatio && mouseX < width - 40 + 30*windowWidthRatio && mouseY < 40 + 30*windowWidthRatio && mouseY > 40 - 30*windowWidthRatio){
     tint('grey');
     image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
-    activeButton = "settings";
     noTint();
+    activeButton = "settings";
   }
+
+  //displays without darkening when not hovered over
   else{
     image(settingsButton, width - 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
   }
 }
 
 function displayHomeButton(){
+  //displays home button
   image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
 
+  //darkens button when mouse is hovering - activeButton communicates that it is being hovered over (see mouseClicked())
   if (mouseX > 40 - 30*windowWidthRatio && mouseX < 40 + 30*windowWidthRatio && mouseY < 40 + 30*windowWidthRatio && mouseY > 40 - 30*windowWidthRatio){
     tint('grey');
     image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
     activeButton = "start";
     noTint();
   }
+
+  //displays without darkening when not hovered over
   else{
     image(homeButton, 40, 40, 60*windowWidthRatio, 60*windowWidthRatio);
   }
@@ -130,6 +163,7 @@ function displayHomeButton(){
 
 
 function displaySettingsMenu(){
+  //displays music volume and settings background
   image(settingsBackground, width/2, height/2);
   text("Use Mouse Wheel to Change Volume", width/2, height/2 - 100);
   text(musicVolume, width/2, height/2);
@@ -137,12 +171,16 @@ function displaySettingsMenu(){
 
 function mouseWheel(event){
   if (mode === "settings"){
+    //raises volume when mouse scrolls upwards
     if (event.delta > 0 && musicVolume < 10){
       musicVolume += 1;
     }
+    //lowers volume when mouse scrolls downwards
     else if (event.delta < 0 && musicVolume > 0){
       musicVolume -= 1;
     }
+    //changes volume
+    backgroundMusic.setVolume(musicVolume/10);
   }
 }
 
