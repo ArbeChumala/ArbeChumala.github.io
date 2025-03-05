@@ -179,6 +179,9 @@ function displaySettingsMenu(){
   image(settingsBackground, width/2, height/2);
   text("Use Mouse Wheel to Change Volume", width/2, height/2 - 100);
   text(musicVolume, width/2, height/2);
+  text("Controls:", width/2, height/2+100);
+  text("Up and Down Arrows for Right Player", width/2, height/2 + 150);
+  text("W and S Keys for Left Player", width/2, height/2+ 200);
 }
 
 function mouseClicked(){
@@ -351,6 +354,9 @@ function moveBall(){
   if (mode === "game"){
     x += dx;
     y += dy;
+  }
+  else{
+    text("Press Space to Start", width/2, height/2 - 200);
   }
 }
 
