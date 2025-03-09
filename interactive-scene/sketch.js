@@ -53,19 +53,19 @@ let clickSound;
 
 function preload(){
   //loads all images, sounds, and fonts before draw() is called
-  startBackground = loadImage("/assets/main-background.png");
-  gameBackground = loadImage("/assets/pong-background.png");
-  minecraftFont = loadFont("/assets/minecraft-font.ttf");
-  pongBall = loadImage("/assets/snowball.webp");
+  startBackground = loadImage("assets/main-background.png");
+  gameBackground = loadImage("assets/pong-background.png");
+  minecraftFont = loadFont("assets/minecraft-font.ttf");
+  pongBall = loadImage("assets/snowball.webp");
   pvpButton = loadImage("assets/pvp-button.png");
   pvbButton = loadImage("assets/pvb-button.png");
-  titleText = loadImage("/assets/pong-craft.png");
-  backgroundMusic = loadSound("/assets/sweden.mp3");
-  boingSound = loadSound("/assets/boing.mp3");
-  clickSound = loadSound("/assets/minecraft-click.mp3");
-  settingsBackground = loadImage("/assets/settings-background.webp");
-  settingsButton = loadImage("/assets/settings-icon.png");
-  homeButton = loadImage("/assets/house-icon.png");
+  titleText = loadImage("assets/pong-craft.png");
+  backgroundMusic = loadSound("assets/sweden.mp3");
+  boingSound = loadSound("assets/boing.mp3");
+  clickSound = loadSound("assets/minecraft-click.mp3");
+  settingsBackground = loadImage("assets/settings-background.webp");
+  settingsButton = loadImage("assets/settings-icon.png");
+  homeButton = loadImage("assets/house-icon.png");
 }
 
 function setup(){
