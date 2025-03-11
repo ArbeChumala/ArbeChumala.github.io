@@ -3,6 +3,7 @@
 - [Traffic Light Simulator](traffic-light-simulator)
 - [Bouncing Balls](bouncing-balls)
 - [Generative Art](art)
+- [Perlin Noise Demo](perlin)
 
 # Cs30 Projects
 - [Interactive Scene](interactive-scene)

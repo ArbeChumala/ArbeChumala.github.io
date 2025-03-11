@@ -7,6 +7,7 @@
 
 let row = 0;
 let column = 0;
+let correctWord = "sammy";
 let spotArray = [[["a"], ["b"], ["c"], ["d"], ["e"]],[["a"], ["b"], ["c"], ["d"], ["e"]], [["a"], ["b"], ["c"], ["d"], ["e"]],[["a"], ["b"], ["c"], ["d"], ["e"]],[["a"], ["b"], ["c"], ["d"], ["e"]],[["a"], ["b"], ["c"], ["d"], ["e"]]];
 
 function setup() {
@@ -21,6 +22,7 @@ function draw(){
   //   }
   // }
   circle(column*width/5, row*height/5, 30);
+  text(spotArray[row][column].letter, column*width/5, row*height/5);
 }
 
 function keyPressed(event){
@@ -32,14 +34,30 @@ function keyPressed(event){
       column = 4;
     }
     else if (row === 0){
-      row = 0;
+      column = 0;
     }
   }
   else{
     column ++;
     if (column > 4){
-      row= 0;
-      column ++;
+      row ++;
+      column= 0;
     }
   }
+  spotArray[row][column] = spawnKey(event);
+}
+
+function spawnKey(event){
+  if (event.key === correctWord[column-1]){
+    letterStatus = "green";
+    console.log("yay");
+  }
+  else if (correctWord.includes(event.key)){
+    console.log("kinda");
+  }
+  letterBox = {
+    letter: event.key,
+    theStatus: "unknown",
+  };
+  return letterBox;
 }
