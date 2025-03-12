@@ -1,5 +1,5 @@
-// Project Title
-// Your Name
+// Arrays and Object Notation
+// Arbe Chumala
 // Date
 //
 // Extra for Experts:
@@ -8,8 +8,22 @@
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  shuffleCards();
 }
 
 function draw() {
   background(220);
+  
+}
+
+function generateCards(){
+  suitList = ["clubs", "spades", "hearts", "diamonds"];
+  for (let theSuit of suitList){
+    for (let cardNumber = 0; cardNumber<=14; cardNumber++){
+      let myCard = {
+        suit: theSuit,
+        number: card
+      };
+    } 
+  }
 }
