@@ -8,4 +8,5 @@
 
 # Cs30 Projects
 - [Interactive Scene](interactive-scene)
-- [Potential 2D Arrays Assignment](2d-arrays)
+- [Arrays And Object Notation](arrays-and-object-notation)
+- [Potential 2D Arrays](2d-arrays)

@@ -11,10 +11,18 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   generateCards();
   shuffleCards();
+  console.log(cardList);
 }
 
 function draw() {
   background(220);
+}
+
+function preload(){
+  clubsPack = loadImage("assets\clubs.png");
+  diamondsPack = loadImage("assets\diamonds.png");
+  heartsPack = loadImage("assets\hearts.png");
+  spadesPack = loadImage("assets\spades.png");
 }
 
 function shuffleCards(){
@@ -30,7 +38,7 @@ function shuffleCards(){
 function generateCards(){
   suitList = ["clubs", "spades", "hearts", "diamonds"];
   for (let theSuit of suitList){
-    for (let cardNumber = 0; cardNumber<=13; cardNumber++){
+    for (let cardNumber = 0; cardNumber<13; cardNumber++){
       let myCard = {
         suit: theSuit,
         number: cardNumber,
