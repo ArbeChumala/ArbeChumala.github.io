@@ -19,10 +19,10 @@ function draw() {
 }
 
 function preload(){
-  clubsPack = loadImage("assets\clubs.png");
-  diamondsPack = loadImage("assets\diamonds.png");
-  heartsPack = loadImage("assets\hearts.png");
-  spadesPack = loadImage("assets\spades.png");
+  clubsPack = loadImage("assets/clubs.png");
+  diamondsPack = loadImage("assets/diamonds.png");
+  heartsPack = loadImage("assets/hearts.png");
+  spadesPack = loadImage("assets/spades.png");
 }
 
 function shuffleCards(){
@@ -32,6 +32,25 @@ function shuffleCards(){
     let selectionToMove = cardList[i];
     cardList[newestIndex] = selectionToMove;
     cardList[i] = newestSelection;
+  }
+}
+
+function assignCardImage(){
+  for (let card of cardList){
+    card.imageX = card.number%5;
+    card.imageY = Math.floor(card.number/5);
+    if (card.suit === "clubs"){
+      card.theImage = clubsPack;
+    }
+    else if (card.suit === "diamonds"){
+      card.theImage = diamondsPack;
+    }
+    else if (card.suit === "hearts"){
+      card.theImage = heartsPack;
+    }
+    else{
+      card.theImage = spadesPack;
+    }
   }
 }
 
