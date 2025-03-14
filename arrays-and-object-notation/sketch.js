@@ -18,7 +18,9 @@ let diamondsPile = [];
 let heartsPile = [];
 let spadesPile = [];
 let deck = [];
-let gameArrays = [cardList, pile1, pile2, pile3, pile4, pile5, pile6, pile7, deck];
+const CARD_WIDTH = 88;
+const CARD_HEIGHT = 124;
+const AISLE_WIDTH = 20;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -87,7 +89,7 @@ function generateCards(){
 }
 
 function initializeCardArrays(){
-  pile1 = cardList[0];
+  pile1 = cardList.slice(0,1);
   pile2 = cardList.slice(1,3);
   pile3 = cardList.slice(3,6);
   pile4 = cardList.slice(6,10);
@@ -98,4 +100,8 @@ function initializeCardArrays(){
 }
 
 function displayPiles(){
+  let pilesList = [pile1, pile2, pile3, pile4, pile5, pile6, pile7];
+  for (let i = 0; i< pilesList.length; i++){
+    image(pilesList[i][0].theImage, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT/2, CARD_WIDTH, CARD_HEIGHT, pilesList[i][0].imageX, pilesList[i][0].imageY, CARD_WIDTH, CARD_HEIGHT);
+  }
 }
