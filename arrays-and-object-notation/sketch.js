@@ -11,11 +11,13 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   generateCards();
   shuffleCards();
+  assignCardImage();
   console.log(cardList);
 }
 
 function draw() {
   background(220);
+  image(cardList[1].theImage, 0, 0, clubsPack.width*0.2, clubsPack.height*0.333, cardList[1].imageX, cardList[1].imageY, clubsPack.width*0.2, clubsPack.height*0.333);
 }
 
 function preload(){
