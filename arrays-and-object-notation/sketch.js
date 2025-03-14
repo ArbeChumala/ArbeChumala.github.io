@@ -21,9 +21,11 @@ let deck = [];
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
 const AISLE_WIDTH = 20;
+const CARD_TOP_GAP = 40;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  noSmooth();
   gameSetup();
 }
 
@@ -95,13 +97,15 @@ function initializeCardArrays(){
   pile4 = cardList.slice(6,10);
   pile5 = cardList.slice(10,15);
   pile6 = cardList.slice(15,21);
-  pile7 = cardList.slice(21,27);
-  deck = cardList.slice(27,52);
+  pile7 = cardList.slice(21,28);
+  deck = cardList.slice(28,52);
 }
 
 function displayPiles(){
   let pilesList = [pile1, pile2, pile3, pile4, pile5, pile6, pile7];
-  for (let i = 0; i< pilesList.length; i++){
-    image(pilesList[i][0].theImage, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT/2, CARD_WIDTH, CARD_HEIGHT, pilesList[i][0].imageX, pilesList[i][0].imageY, CARD_WIDTH, CARD_HEIGHT);
+  for (let ix = 0; ix < pilesList.length; ix++){
+    for(let iy = 0; iy < pilesList[ix].length; iy++){
+      image(pilesList[ix][iy].theImage, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, pilesList[ix][iy].imageX, pilesList[ix][iy].imageY, CARD_WIDTH, CARD_HEIGHT);
+    }
   }
 }
