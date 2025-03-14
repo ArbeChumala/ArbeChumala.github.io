@@ -6,18 +6,35 @@
 // - describe what you did to take this project "above and beyond"
 
 let cardList = [];
+let pile1 = [];
+let pile2 = [];
+let pile3 = [];
+let pile4 = [];
+let pile5 = [];
+let pile6 = [];
+let pile7 = [];
+let clubsPile = [];
+let diamondsPile = [];
+let heartsPile = [];
+let spadesPile = [];
+let deck = [];
+let gameArrays = [cardList, pile1, pile2, pile3, pile4, pile5, pile6, pile7, deck];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  gameSetup();
+}
+
+function gameSetup(){
   generateCards();
   shuffleCards();
   assignCardImage();
-  console.log(cardList);
+  initializeCardArrays();
 }
 
 function draw() {
-  background(220);
-  image(cardList[1].theImage, 0, 0, clubsPack.width*0.2, clubsPack.height*0.333, cardList[1].imageX, cardList[1].imageY, clubsPack.width*0.2, clubsPack.height*0.333);
+  background(27, 117, 92);
+  displayPiles();
 }
 
 function preload(){
@@ -39,8 +56,8 @@ function shuffleCards(){
 
 function assignCardImage(){
   for (let card of cardList){
-    card.imageX = card.number%5;
-    card.imageY = Math.floor(card.number/5);
+    card.imageX = card.number%5*clubsPack.width/5;
+    card.imageY = Math.floor(card.number/5)*clubsPack.height/3;
     if (card.suit === "clubs"){
       card.theImage = clubsPack;
     }
@@ -67,4 +84,18 @@ function generateCards(){
       cardList.push(myCard);
     } 
   }
+}
+
+function initializeCardArrays(){
+  pile1 = cardList[0];
+  pile2 = cardList.slice(1,3);
+  pile3 = cardList.slice(3,6);
+  pile4 = cardList.slice(6,10);
+  pile5 = cardList.slice(10,15);
+  pile6 = cardList.slice(15,21);
+  pile7 = cardList.slice(21,27);
+  deck = cardList.slice(27,52);
+}
+
+function displayPiles(){
 }
