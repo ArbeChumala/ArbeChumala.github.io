@@ -18,14 +18,17 @@ let diamondsPile = [];
 let heartsPile = [];
 let spadesPile = [];
 let deck = [];
+let pilesList;
+let movingCard;
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
 const AISLE_WIDTH = 20;
-const CARD_TOP_GAP = 40;
+const CARD_TOP_GAP = 20;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noSmooth();
+  noLoop();
   gameSetup();
 }
 
@@ -34,6 +37,7 @@ function gameSetup(){
   shuffleCards();
   assignCardImage();
   initializeCardArrays();
+  updateVariables();
 }
 
 function draw() {
@@ -46,6 +50,14 @@ function preload(){
   diamondsPack = loadImage("assets/diamonds.png");
   heartsPack = loadImage("assets/hearts.png");
   spadesPack = loadImage("assets/spades.png");
+  cardBack = loadImage("assets/card-backing.png");
+}
+
+function updateVariables(){
+  pilesList = [pile1, pile2, pile3, pile4, pile5, pile6, pile7];
+  for (let pile of pilesList){
+    pile[pile.length-1].isVisible = true;
+  }
 }
 
 function shuffleCards(){
@@ -84,6 +96,7 @@ function generateCards(){
       let myCard = {
         suit: theSuit,
         number: cardNumber,
+        isVisible: false,
       };
       cardList.push(myCard);
     } 
@@ -102,10 +115,21 @@ function initializeCardArrays(){
 }
 
 function displayPiles(){
-  let pilesList = [pile1, pile2, pile3, pile4, pile5, pile6, pile7];
   for (let ix = 0; ix < pilesList.length; ix++){
     for(let iy = 0; iy < pilesList[ix].length; iy++){
-      image(pilesList[ix][iy].theImage, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, pilesList[ix][iy].imageX, pilesList[ix][iy].imageY, CARD_WIDTH, CARD_HEIGHT);
+      if (pilesList[ix][iy].isVisible){
+        image(pilesList[ix][iy].theImage, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, pilesList[ix][iy].imageX, pilesList[ix][iy].imageY, CARD_WIDTH, CARD_HEIGHT);
+      }
+      else{
+        image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+      }
     }
   }
+}
+
+function doubleClicked(){
+  movingCard = pile4.splice(3);
+  pile5.push(movingCard);
+  updateVariables();
+  draw();
 }
