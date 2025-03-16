@@ -20,15 +20,15 @@ let spadesPile = [];
 let deck = [];
 let pilesList;
 let movingCard;
+let cardMoving = false;
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
 const AISLE_WIDTH = 20;
-const CARD_TOP_GAP = 20;
+const CARD_TOP_GAP = 30;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noSmooth();
-  noLoop();
   gameSetup();
 }
 
@@ -37,12 +37,13 @@ function gameSetup(){
   shuffleCards();
   assignCardImage();
   initializeCardArrays();
-  updateVariables();
 }
 
 function draw() {
   background(27, 117, 92);
+  updateVariables();
   displayPiles();
+  displayMovingCard();
 }
 
 function preload(){
@@ -56,7 +57,9 @@ function preload(){
 function updateVariables(){
   pilesList = [pile1, pile2, pile3, pile4, pile5, pile6, pile7];
   for (let pile of pilesList){
-    pile[pile.length-1].isVisible = true;
+    if (!cardMoving && pile.length > 0){
+      pile[pile.length-1].isVisible = true;
+    }
   }
 }
 
@@ -76,15 +79,19 @@ function assignCardImage(){
     card.imageY = Math.floor(card.number/5)*clubsPack.height/3;
     if (card.suit === "clubs"){
       card.theImage = clubsPack;
+      card.colour = "black";
     }
     else if (card.suit === "diamonds"){
       card.theImage = diamondsPack;
+      card.colour = "red";
     }
     else if (card.suit === "hearts"){
       card.theImage = heartsPack;
+      card.colour = "red";
     }
     else{
       card.theImage = spadesPack;
+      card.coloir = "black";
     }
   }
 }
@@ -116,20 +123,62 @@ function initializeCardArrays(){
 
 function displayPiles(){
   for (let ix = 0; ix < pilesList.length; ix++){
-    for(let iy = 0; iy < pilesList[ix].length; iy++){
-      if (pilesList[ix][iy].isVisible){
-        image(pilesList[ix][iy].theImage, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, pilesList[ix][iy].imageX, pilesList[ix][iy].imageY, CARD_WIDTH, CARD_HEIGHT);
-      }
-      else{
-        image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+    if (pilesList[ix].length >= 1){
+      for(let iy = 0; iy < pilesList[ix].length; iy++){
+        if (pilesList[ix][iy].isVisible){
+          pilesList[ix][iy].x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix;
+          pilesList[ix][iy].y = height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy;
+  
+          image(pilesList[ix][iy].theImage, pilesList[ix][iy].x, pilesList[ix][iy].y, CARD_WIDTH, CARD_HEIGHT, pilesList[ix][iy].imageX, pilesList[ix][iy].imageY, CARD_WIDTH, CARD_HEIGHT);
+        }
+        else{
+          image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+        }
       }
     }
   }
 }
 
-function doubleClicked(){
-  movingCard = pile4.splice(3);
-  pile5.push(movingCard);
-  updateVariables();
-  draw();
+function mousePressed(){
+  for (let i = 0; i<pilesList.length; i++){
+    if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && !cardMoving){
+      movingCard = pilesList[i].splice(pilesList[i].length-1)[0];
+      movingCard.homePile = i;
+      cardMoving = true;
+    }
+  }
+  // if (!cardMoving){
+  //   movingCard = pile4.splice(3)[0];
+  //   cardMoving = true;
+  // }
 }
+
+function mouseReleased(){
+  for (let i = 0; i<pilesList.length; i++){
+    if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && pilesList[i].length > 0){
+      if(pilesList[i][pilesList[i].length-1].colour !== movingCard.colour && pilesList[i][pilesList[i].length-1].number - movingCard.number === 1){
+        pilesList[i].push(movingCard);
+        cardMoving = false;
+      }
+    }
+    else if(mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && movingCard.number === 12){
+      pilesList[i].push(movingCard);
+      cardMoving = false;
+    }
+  }
+  if (cardMoving){
+    pilesList[movingCard.homePile].push(movingCard);
+    cardMoving = false;
+  }
+}
+
+function displayMovingCard(){
+  if (cardMoving){
+    image(movingCard.theImage, mouseX-CARD_WIDTH/2, mouseY-CARD_HEIGHT/2,CARD_WIDTH, CARD_HEIGHT, movingCard.imageX, movingCard.imageY, CARD_WIDTH, CARD_HEIGHT);
+  }
+}
+
+// function doubleClicked(){
+//   movingCard = pile4.splice(3)[0];
+//   pile5.push(movingCard);
+// }
