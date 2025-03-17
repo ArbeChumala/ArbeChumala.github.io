@@ -19,6 +19,7 @@ let heartsPile = [];
 let spadesPile = [];
 let deck = [];
 let pilesList;
+let suitList = ["clubs", "spades", "hearts", "diamonds"];
 let movingCards;
 let cardMoving = false;
 const CARD_WIDTH = 88;
@@ -58,6 +59,7 @@ function preload(){
 
 function updateVariables(){
   pilesList = [pile1, pile2, pile3, pile4, pile5, pile6, pile7];
+  acePilesList = [clubsPile, diamondsPile, heartsPile, spadesPile];
   for (let pile of pilesList){
     if (!cardMoving && pile.length > 0){
       pile[pile.length-1].isVisible = true;
@@ -99,7 +101,7 @@ function assignCardImage(){
 }
 
 function generateCards(){
-  suitList = ["clubs", "spades", "hearts", "diamonds"];
+  
   for (let theSuit of suitList){
     for (let cardNumber = 0; cardNumber<13; cardNumber++){
       let myCard = {
@@ -167,6 +169,7 @@ function mousePressed(){
 }
 
 function mouseReleased(){
+  //regular deck
   for (let i = 0; i<pilesList.length; i++){
     if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && pilesList[i].length > 0 && cardMoving){
       if(pilesList[i][pilesList[i].length-1].colour !== movingCards[0].colour && pilesList[i][pilesList[i].length-1].number - movingCards[0].number === 1){
@@ -184,6 +187,22 @@ function mouseReleased(){
       cardMoving = false;
     }
   }
+  //ace deck
+  for (let i = 0; i < acePilesList.length; i++){
+    if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1){
+      if (acePilesList[i].length > 0){
+        
+      }
+      else{
+        if (suitList.indexOf(acePilesList[i].theSuit === i) && movingCards[0].number === 0){
+          console.log("got here");
+          acePilesList[i].push(movingCards[0]);
+          cardMoving = false;
+        }
+      }
+    }
+  }
+  // put back
   if (cardMoving){
     for (card of movingCards){
       pilesList[card.homePile].push(card);
@@ -204,5 +223,9 @@ function displayMovingCards(){
 function displayPlaceholders(){
   for (let i = 0; i<pilesList.length; i++){
     image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT/2, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
-  } 
+
+    if (i>2){
+      image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+    }
+  }
 }
