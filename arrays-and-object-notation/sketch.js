@@ -42,6 +42,7 @@ function gameSetup(){
 function draw() {
   background(27, 117, 92);
   updateVariables();
+  displayPlaceholders();
   displayPiles();
   displayMovingCards();
 }
@@ -52,6 +53,7 @@ function preload(){
   heartsPack = loadImage("assets/hearts.png");
   spadesPack = loadImage("assets/spades.png");
   cardBack = loadImage("assets/card-backing.png");
+  placeHolder = loadImage("assets/placeholder-spot.png");
 }
 
 function updateVariables(){
@@ -197,4 +199,10 @@ function displayMovingCards(){
       image(movingCards[i].theImage, mouseX-CARD_WIDTH/2, mouseY-CARD_HEIGHT/2 + CARD_TOP_GAP*i,CARD_WIDTH, CARD_HEIGHT, movingCards[i].imageX, movingCards[i].imageY, CARD_WIDTH, CARD_HEIGHT);
     }
   }
+}
+
+function displayPlaceholders(){
+  for (let i = 0; i<pilesList.length; i++){
+    image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT/2, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+  } 
 }
