@@ -142,25 +142,6 @@ function displayPiles(){
   }
 }
 
-// function mousePressed(){
-//   for (let ix = 0; ix<pilesList.length; ix++){
-//     if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && !cardMoving){
-//       for (let iy = pilesList[ix].length-1; iy>=0; iy--){
-//         if (mouseY > pilesList[ix][iy].y){
-//           cardMoving = true;
-//           console.log(ix);
-//           console.log(iy);
-//           movingCards = pilesList[ix].splice(iy, pilesList[ix].length-iy);
-
-//           for (let card of movingCards){
-//             card.homePile = ix;
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
 function mousePressed(){
   for (let ix = 0; ix<pilesList.length; ix++){
     if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && !cardMoving){
