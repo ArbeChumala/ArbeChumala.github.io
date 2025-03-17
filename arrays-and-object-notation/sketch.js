@@ -166,15 +166,17 @@ function mousePressed(){
     if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && !cardMoving){
       for (let iy = 0; iy<pilesList[ix].length; iy++){
         if (mouseY > pilesList[ix][iy].y && (mouseY < pilesList[ix][iy].y + CARD_TOP_GAP || iy === pilesList[ix].length - 1 && mouseY < pilesList[ix][iy].y + CARD_HEIGHT)&&pilesList[ix][iy].isVisible){
+          movingCards = [];
           for (let ic = pilesList[ix].length-1; ic >= iy; ic--){
-            movingCards = [];
             movingCards.push(pilesList[ix].pop());
+            console.log(ic);
           }
           movingCards.reverse();
           cardMoving = true;
           for (let card of movingCards){
             card.homePile = ix;
           }
+          console.log(movingCards);
         }
       }
     }
@@ -187,7 +189,6 @@ function mouseReleased(){
       if(pilesList[i][pilesList[i].length-1].colour !== movingCards[0].colour && pilesList[i][pilesList[i].length-1].number - movingCards[0].number === 1){
         for (card of movingCards){
           pilesList[i].push(card);
-          console.log(card);
         }
         cardMoving = false;
       }
