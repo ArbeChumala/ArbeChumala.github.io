@@ -18,6 +18,7 @@ let diamondsPile = [];
 let heartsPile = [];
 let spadesPile = [];
 let deck = [];
+let visibleDeck = [];
 let pilesList;
 let suitList = ["clubs", "diamonds", "hearts", "spades"];
 let movingCards;
@@ -149,6 +150,12 @@ function displayPiles(){
       image(acePilesList[i][acePilesList[i].length-1].theImage, width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, acePilesList[i][acePilesList[i].length-1].imageX, acePilesList[i][acePilesList[i].length-1].imageY, CARD_WIDTH, CARD_HEIGHT);
     }
   }
+  for (let i = 0; i < deck.length; i++){
+    image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP - 3*i, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+  }
+  for (let i = 0; i<visibleDeck.length; i++){
+    image(visibleDeck[i].theImage, width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i*CARD_TOP_GAP, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, visibleDeck[i].imageX, visibleDeck[i].imageY, CARD_WIDTH, CARD_HEIGHT);
+  }
 }
 
 function mousePressed(){
@@ -179,6 +186,26 @@ function mousePressed(){
       cardMoving = true;
     }
   }
+  if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP - 3*deck.length){
+    for (let card of visibleDeck.splice(0, visibleDeck.length)){
+      deck.unshift(card);
+    }
+    
+    if (deck.length > 2){
+      for (let card of deck.splice(deck.length-3, 3)){
+        visibleDeck.push(card);
+      }
+    }
+    else{
+      deck.splice(0, deck.length);
+    }
+  }
+  if (mouseX > width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseX < width/2-CARD_WIDTH*1.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
+    movingCards = [];
+    movingCards.push(visibleDeck.pop());
+    movingCards[0].isInAcePile = "neither";
+    cardMoving = true;
+  }
 }
 
 function mouseReleased(){
@@ -202,7 +229,7 @@ function mouseReleased(){
     }
     //ace deck
     for (let i = 0; i < acePilesList.length; i++){
-      if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1){
+      if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1 && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
         if (acePilesList[i].length > 0){
           if (acePilesList[i][acePilesList[i].length-1].number - movingCards[0].number === -1 && acePilesList[i][acePilesList[i].length-1].suit === movingCards[0].suit){
             acePilesList[i].push(movingCards[0]);
@@ -210,7 +237,6 @@ function mouseReleased(){
           }
         }
         else{
-          console.log("hi");
           if (suitList[i] === movingCards[0].suit && movingCards[0].number === 0){
             acePilesList[i].push(movingCards[0]);
             cardMoving = false;
@@ -222,11 +248,14 @@ function mouseReleased(){
   // put back
   if (cardMoving){
     for (card of movingCards){
-      if (card.isInAcePile){
+      if (card.isInAcePile === true){
         acePilesList[card.homePile].push(card);
       }
-      else {
+      else if (card.isInAcePile === false){
         pilesList[card.homePile].push(card);
+      }
+      else{
+        visibleDeck.push(card);
       }
     }
     cardMoving = false;
@@ -248,5 +277,8 @@ function displayPlaceholders(){
     if (i>2){
       image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
     }
+  }
+  for (let i = 0; i < deck.length; i++){
+    image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
   }
 }
