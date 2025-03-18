@@ -191,7 +191,6 @@ function mousePressed(){
     for (let card of visibleDeck.splice(0, visibleDeck.length)){
       deck.unshift(card);
     }
-    
     if (deck.length > 2){
       for (let card of deck.splice(deck.length-3, 3)){
         visibleDeck.push(card);
