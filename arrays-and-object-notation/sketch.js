@@ -26,7 +26,7 @@ let cardMoving = false;
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
 const AISLE_WIDTH = 20;
-const CARD_TOP_GAP = 30;
+const CARD_TOP_GAP = 25;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -130,30 +130,31 @@ function displayPiles(){
   for (let ix = 0; ix < pilesList.length; ix++){
     if (pilesList[ix].length >= 1){
       for(let iy = 0; iy < pilesList[ix].length; iy++){
-        if (pilesList[ix][iy].isVisible){
-          pilesList[ix][iy].x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix;
-          pilesList[ix][iy].y = height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy;
-  
-          image(pilesList[ix][iy].theImage, pilesList[ix][iy].x, pilesList[ix][iy].y, CARD_WIDTH, CARD_HEIGHT, pilesList[ix][iy].imageX, pilesList[ix][iy].imageY, CARD_WIDTH, CARD_HEIGHT);
+        let latestCard = pilesList[ix][iy];
+        latestCard.x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix;
+        latestCard.y = height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy;
+
+        if (latestCard.isVisible){
+          image(latestCard.theImage, latestCard.x, latestCard.y, CARD_WIDTH, CARD_HEIGHT, latestCard.imageX, latestCard.imageY, CARD_WIDTH, CARD_HEIGHT);
         }
         else{
-          pilesList[ix][iy].x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix;
-          pilesList[ix][iy].y = height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy;
-
-          image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix, height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          image(cardBack, latestCard.x, latestCard.y, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
       }
     }
   }
   for (let i = 0; i < acePilesList.length; i++){
     if (acePilesList[i].length > 0){
-      image(acePilesList[i][acePilesList[i].length-1].theImage, width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, acePilesList[i][acePilesList[i].length-1].imageX, acePilesList[i][acePilesList[i].length-1].imageY, CARD_WIDTH, CARD_HEIGHT);
+      let latestCard = acePilesList[i][acePilesList[i].length -1];
+      latestCard.x = width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i;
+      latestCard.y = height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP;
+      image(latestCard.theImage, latestCard.x, latestCard.y, CARD_WIDTH, CARD_HEIGHT, latestCard.imageX, latestCard.imageY, CARD_WIDTH, CARD_HEIGHT);
     }
   }
   for (let i = 0; i < deck.length; i++){
     image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP - 3*i, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
   }
-  for (let i = 0; i<visibleDeck.length; i++){
+  for (let i = 0; i < visibleDeck.length; i++){
     image(visibleDeck[i].theImage, width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i*CARD_TOP_GAP, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, visibleDeck[i].imageX, visibleDeck[i].imageY, CARD_WIDTH, CARD_HEIGHT);
   }
 }
@@ -244,9 +245,7 @@ function mouseReleased(){
         }
       }
     }
-  }
-  // put back
-  if (cardMoving){
+    //put back
     for (card of movingCards){
       if (card.isInAcePile === true){
         acePilesList[card.homePile].push(card);
