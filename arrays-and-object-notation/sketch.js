@@ -19,7 +19,7 @@ let heartsPile = [];
 let spadesPile = [];
 let deck = [];
 let pilesList;
-let suitList = ["clubs", "spades", "hearts", "diamonds"];
+let suitList = ["clubs", "diamonds", "hearts", "spades"];
 let movingCards;
 let cardMoving = false;
 const CARD_WIDTH = 88;
@@ -101,13 +101,13 @@ function assignCardImage(){
 }
 
 function generateCards(){
-  
   for (let theSuit of suitList){
     for (let cardNumber = 0; cardNumber<13; cardNumber++){
       let myCard = {
         suit: theSuit,
         number: cardNumber,
         isVisible: false,
+        isInAcePile: false,
       };
       cardList.push(myCard);
     } 
@@ -144,6 +144,11 @@ function displayPiles(){
       }
     }
   }
+  for (let i = 0; i < acePilesList.length; i++){
+    if (acePilesList[i].length > 0){
+      image(acePilesList[i][acePilesList[i].length-1].theImage, width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, acePilesList[i][acePilesList[i].length-1].imageX, acePilesList[i][acePilesList[i].length-1].imageY, CARD_WIDTH, CARD_HEIGHT);
+    }
+  }
 }
 
 function mousePressed(){
@@ -154,50 +159,62 @@ function mousePressed(){
           movingCards = [];
           for (let ic = pilesList[ix].length-1; ic >= iy; ic--){
             movingCards.push(pilesList[ix].pop());
-            console.log(ic);
           }
           movingCards.reverse();
           cardMoving = true;
           for (let card of movingCards){
             card.homePile = ix;
+            card.isInAcePile = false;
           }
-          console.log(movingCards);
         }
       }
+    }
+  }
+  for (let i = 0; i < acePilesList.length; i++){
+    if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
+      movingCards = [];
+      movingCards.push(acePilesList[i].pop());
+      movingCards[0].isInAcePile = true;
+      movingCards[0].homePile = i;
+      cardMoving = true;
     }
   }
 }
 
 function mouseReleased(){
   //regular deck
-  for (let i = 0; i<pilesList.length; i++){
-    if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && pilesList[i].length > 0 && cardMoving){
-      if(pilesList[i][pilesList[i].length-1].colour !== movingCards[0].colour && pilesList[i][pilesList[i].length-1].number - movingCards[0].number === 1){
+  if (cardMoving){
+    for (let i = 0; i<pilesList.length; i++){
+      if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && pilesList[i].length > 0 && cardMoving && mouseY > pilesList[i][pilesList[i].length-1].y){
+        if(pilesList[i][pilesList[i].length-1].colour !== movingCards[0].colour && pilesList[i][pilesList[i].length-1].number - movingCards[0].number === 1){
+          for (card of movingCards){
+            pilesList[i].push(card);
+          }
+          cardMoving = false;
+        }
+      }
+      else if(mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && movingCards[0].number === 12 && mouseY > height/2-CARD_HEIGHT/2){
         for (card of movingCards){
           pilesList[i].push(card);
         }
         cardMoving = false;
       }
     }
-    else if(mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && movingCards[0].number === 12){
-      for (card of movingCards){
-        pilesList[i].push(card);
-        console.log(card);
-      }
-      cardMoving = false;
-    }
-  }
-  //ace deck
-  for (let i = 0; i < acePilesList.length; i++){
-    if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1){
-      if (acePilesList[i].length > 0){
-        
-      }
-      else{
-        if (suitList.indexOf(acePilesList[i].theSuit === i) && movingCards[0].number === 0){
-          console.log("got here");
-          acePilesList[i].push(movingCards[0]);
-          cardMoving = false;
+    //ace deck
+    for (let i = 0; i < acePilesList.length; i++){
+      if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1){
+        if (acePilesList[i].length > 0){
+          if (acePilesList[i][acePilesList[i].length-1].number - movingCards[0].number === -1 && acePilesList[i][acePilesList[i].length-1].suit === movingCards[0].suit){
+            acePilesList[i].push(movingCards[0]);
+            cardMoving = false;
+          }
+        }
+        else{
+          console.log("hi");
+          if (suitList[i] === movingCards[0].suit && movingCards[0].number === 0){
+            acePilesList[i].push(movingCards[0]);
+            cardMoving = false;
+          }
         }
       }
     }
@@ -205,8 +222,12 @@ function mouseReleased(){
   // put back
   if (cardMoving){
     for (card of movingCards){
-      pilesList[card.homePile].push(card);
-      console.log(card);
+      if (card.isInAcePile){
+        acePilesList[card.homePile].push(card);
+      }
+      else {
+        pilesList[card.homePile].push(card);
+      }
     }
     cardMoving = false;
   }
