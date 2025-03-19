@@ -167,11 +167,10 @@ function displayPiles(){
   }
 
   //displays each card that has been picked out of the upper left spare deck
-  let startingIndex = visibleDeck.length > 2 ? visibleDeck.length-3 : 0;
 
-  for (let i = startingIndex; i<visibleDeck.length; i++){
+  for (let i = 0; i<visibleDeck.length; i++){
     let card = visibleDeck[i];
-    card.x = width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i%3*CARD_TOP_GAP;
+    card.x = width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i*CARD_TOP_GAP;
     card.y = height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP;
 
     image(card.theImage, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.imageX, card.imageY, CARD_WIDTH, CARD_HEIGHT);
@@ -225,12 +224,13 @@ function mousePressed(){
     for (let card of deck.splice(startingIndex, deck.length - startingIndex)){
       visibleDeck.push(card);
     }
+
   }
 
   //checks if cards taken out of the upper left deck were clicked
-  if (visibleDeck.length > 0){
-    if (mouseX > width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseX < width/2-CARD_WIDTH*1.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
-      movingCards = [];
+  if (visibleDeck.length > 0 && mouseX > 140){
+    let card = visibleDeck[visibleDeck.length-1];
+    if (mouseX > card.x && mouseX < card.x + CARD_WIDTH && mouseY > card.y && mouseY < card.y + CARD_HEIGHT){
       movingCards.push(visibleDeck.pop());
       movingCards[0].homePile = "visible deck";
       cardMoving = true;
@@ -242,14 +242,16 @@ function mouseReleased(){
   //regular deck
   if (cardMoving){
     for (let i = 0; i<pilesList.length; i++){
-      if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && pilesList[i].length > 0 && cardMoving && mouseY > pilesList[i][pilesList[i].length-1].y){
-        if(pilesList[i][pilesList[i].length-1].colour !== movingCards[0].colour && pilesList[i][pilesList[i].length-1].number - movingCards[0].number === 1){
+      if (pilesList[i].length > 0){
+        let card = pilesList[i][pilesList[i].length -1];
+        if (mouseX > card.x && mouseX < card.x + CARD_WIDTH && mouseY > card.y && card.colour !== movingCards[0].colour && card.number - movingCards[0].number === 1){
           for (card of movingCards){
             pilesList[i].push(card);
           }
           cardMoving = false;
         }
       }
+  
       else if(mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && movingCards[0].number === 12 && mouseY > height/2-CARD_HEIGHT/2){
         for (card of movingCards){
           pilesList[i].push(card);
@@ -262,7 +264,8 @@ function mouseReleased(){
     for (let i = 0; i < acePilesList.length; i++){
       if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1 && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
         if (acePilesList[i].length > 0){
-          if (acePilesList[i][acePilesList[i].length-1].number - movingCards[0].number === -1 && acePilesList[i][acePilesList[i].length-1].suit === movingCards[0].suit){
+          let card = acePilesList[i][acePilesList[i].length-1];
+          if (card.number - movingCards[0].number === -1 && card.suit === movingCards[0].suit){
             acePilesList[i].push(movingCards[0]);
             cardMoving = false;
           }
