@@ -23,6 +23,8 @@ let pilesList;
 let acePilesList;
 let suitList = ["clubs", "diamonds", "hearts", "spades"];
 let movingCards;
+let mouseXList = [];
+let mouseYList = [];
 let cardMoving = false;
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
@@ -167,7 +169,6 @@ function displayPiles(){
   }
 
   //displays each card that has been picked out of the upper left spare deck
-
   for (let i = 0; i<visibleDeck.length; i++){
     let card = visibleDeck[i];
     card.x = width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i*CARD_TOP_GAP;
@@ -252,7 +253,10 @@ function mouseReleased(){
         }
       }
   
-      else if(mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && movingCards[0].number === 12 && mouseY > height/2-CARD_HEIGHT/2){
+      else if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && 
+               mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i && 
+               movingCards[0].number === 12 && 
+               mouseY > height/2-CARD_HEIGHT/2){
         for (card of movingCards){
           pilesList[i].push(card);
         }
@@ -299,9 +303,23 @@ function mouseReleased(){
 
 function displayMovingCards(){
   if (cardMoving){
-    for (let i = 0; i< movingCards.length; i++){
-      image(movingCards[i].theImage, mouseX-CARD_WIDTH/2, mouseY-CARD_HEIGHT/2 + CARD_TOP_GAP*i,CARD_WIDTH, CARD_HEIGHT, movingCards[i].imageX, movingCards[i].imageY, CARD_WIDTH, CARD_HEIGHT);
+    mouseXList.push(mouseX);
+    mouseYList.push(mouseY);
+    let dx = 0;
+    let dy = 0;
+    if (mouseXList.length > 1 && mouseYList.length > 1){
+      dx = mouseXList[mouseXList.length-1] - mouseXList[mouseXList.length-2];
+      dy = mouseYList[mouseYList.length-1] - mouseYList[mouseYList.length-2];
     }
+    for (let i = 0; i< movingCards.length; i++){
+      movingCards[i].x += dx;
+      movingCards[i].y += dy;
+      image(movingCards[i].theImage, movingCards[i].x, movingCards[i].y,CARD_WIDTH, CARD_HEIGHT, movingCards[i].imageX, movingCards[i].imageY, CARD_WIDTH, CARD_HEIGHT);
+    }
+  }
+  else{
+    mouseXList = [];
+    mouseYList = [];
   }
 }
 
