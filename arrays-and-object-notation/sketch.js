@@ -228,7 +228,7 @@ function mousePressed(){
   }
 
   //checks if cards taken out of the upper left deck were clicked
-  if (visibleDeck.length > 0 && mouseX > 140){
+  if (visibleDeck.length > 0 && mouseX > width/2-2.5*CARD_WIDTH-2*AISLE_WIDTH){
     let card = visibleDeck[visibleDeck.length-1];
     if (mouseX > card.x && mouseX < card.x + CARD_WIDTH && mouseY > card.y && mouseY < card.y + CARD_HEIGHT){
       movingCards.push(visibleDeck.pop());
