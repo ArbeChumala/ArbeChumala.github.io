@@ -20,13 +20,14 @@ let spadesPile = [];
 let deck = [];
 let visibleDeck = [];
 let pilesList;
+let acePilesList;
 let suitList = ["clubs", "diamonds", "hearts", "spades"];
 let movingCards;
 let cardMoving = false;
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
 const AISLE_WIDTH = 20;
-const CARD_TOP_GAP = 25;
+const CARD_TOP_GAP = 30;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -108,7 +109,6 @@ function generateCards(){
         suit: theSuit,
         number: cardNumber,
         isVisible: false,
-        isInAcePile: false,
       };
       cardList.push(myCard);
     } 
@@ -127,84 +127,114 @@ function initializeCardArrays(){
 }
 
 function displayPiles(){
-  for (let ix = 0; ix < pilesList.length; ix++){
-    if (pilesList[ix].length >= 1){
-      for(let iy = 0; iy < pilesList[ix].length; iy++){
-        let latestCard = pilesList[ix][iy];
-        latestCard.x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix;
-        latestCard.y = height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy;
 
-        if (latestCard.isVisible){
-          image(latestCard.theImage, latestCard.x, latestCard.y, CARD_WIDTH, CARD_HEIGHT, latestCard.imageX, latestCard.imageY, CARD_WIDTH, CARD_HEIGHT);
+  //display cards in lower piles (piles 1 to 7)
+  for (let ix = 0; ix < pilesList.length; ix++){
+    if (pilesList[ix].length > 0){
+      for(let iy = 0; iy < pilesList[ix].length; iy++){
+        let card = pilesList[ix][iy];
+        card.x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix;
+        card.y = height/2 - CARD_HEIGHT/2 + CARD_TOP_GAP*iy;
+
+        if (card.isVisible){
+          image(card.theImage, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.imageX, card.imageY, CARD_WIDTH, CARD_HEIGHT);
         }
         else{
-          image(cardBack, latestCard.x, latestCard.y, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          image(cardBack, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
       }
     }
   }
+
+  //display ace piles (four top-right decks)
   for (let i = 0; i < acePilesList.length; i++){
     if (acePilesList[i].length > 0){
-      let latestCard = acePilesList[i][acePilesList[i].length -1];
-      latestCard.x = width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i;
-      latestCard.y = height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP;
-      image(latestCard.theImage, latestCard.x, latestCard.y, CARD_WIDTH, CARD_HEIGHT, latestCard.imageX, latestCard.imageY, CARD_WIDTH, CARD_HEIGHT);
+      let card = acePilesList[i][acePilesList[i].length-1];
+      card.x = width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i;
+      card.y = height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP;
+
+      image(card.theImage, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.imageX, card.imageY, CARD_WIDTH, CARD_HEIGHT);
     }
   }
+
+  //displays the deck with extra cards
   for (let i = 0; i < deck.length; i++){
-    image(cardBack, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP - 3*i, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+    let card = deck[i];
+    card.x = width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3;
+    card.y = height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP - 3*i;
+
+    image(cardBack, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
   }
-  for (let i = 0; i < visibleDeck.length; i++){
-    image(visibleDeck[i].theImage, width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i*CARD_TOP_GAP, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, visibleDeck[i].imageX, visibleDeck[i].imageY, CARD_WIDTH, CARD_HEIGHT);
+
+  //displays each card that has been picked out of the upper left spare deck
+  let startingIndex = visibleDeck.length > 2 ? visibleDeck.length-3 : 0;
+
+  for (let i = startingIndex; i<visibleDeck.length; i++){
+    let card = visibleDeck[i];
+    card.x = width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + i%3*CARD_TOP_GAP;
+    card.y = height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP;
+
+    image(card.theImage, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.imageX, card.imageY, CARD_WIDTH, CARD_HEIGHT);
   }
 }
 
 function mousePressed(){
+  movingCards = [];
+
+  //checks if regular deck cards were clicked (piles 1-7)
   for (let ix = 0; ix<pilesList.length; ix++){
-    if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*ix && !cardMoving){
-      for (let iy = 0; iy<pilesList[ix].length; iy++){
-        if (mouseY > pilesList[ix][iy].y && (mouseY < pilesList[ix][iy].y + CARD_TOP_GAP || iy === pilesList[ix].length - 1 && mouseY < pilesList[ix][iy].y + CARD_HEIGHT)&&pilesList[ix][iy].isVisible){
-          movingCards = [];
-          for (let ic = pilesList[ix].length-1; ic >= iy; ic--){
-            movingCards.push(pilesList[ix].pop());
-          }
-          movingCards.reverse();
-          cardMoving = true;
-          for (let card of movingCards){
-            card.homePile = ix;
-            card.isInAcePile = false;
-          }
+    for (let iy = 0; iy<pilesList[ix].length; iy++){
+      
+      let card = pilesList[ix][iy];
+
+      if (mouseY > card.y && (mouseY < card.y + CARD_TOP_GAP || iy === pilesList[ix].length - 1 && mouseY < card.y + CARD_HEIGHT) && card.isVisible && mouseX > card.x && mouseX < card.x + CARD_WIDTH && !cardMoving){
+        
+        for (let card of pilesList[ix].splice(iy,pilesList[ix].length-iy)){
+          card.homePileIndex = ix;
+          card.homePile = "lower piles";
+          movingCards.push(card);
         }
+        
+        cardMoving = true;
       }
     }
   }
+  
+  //checks if cards in the ace pile were clicked
   for (let i = 0; i < acePilesList.length; i++){
-    if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
-      movingCards = [];
-      movingCards.push(acePilesList[i].pop());
-      movingCards[0].isInAcePile = true;
-      movingCards[0].homePile = i;
-      cardMoving = true;
+    if (acePilesList[i].length > 0){
+      let card = acePilesList[i][acePilesList[i].length-1];
+      if (mouseX > card.x && mouseX < card.x + CARD_WIDTH && mouseY > card.y && mouseY < card.y + CARD_HEIGHT){
+        movingCards.push(acePilesList[i].pop());
+        movingCards[0].homePile = "ace piles";
+        movingCards[0].homePileIndex = i;
+        cardMoving = true;
+      }
     }
   }
-  if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP - 3*deck.length){
+
+  //checks if the cards in the upper left deck were clicked
+  if (mouseX > width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 && mouseX < width/2-CARD_WIDTH*2.5-AISLE_WIDTH*3 && mouseY > height/2 - CARD_HEIGHT*1.5 -3*deck.length- 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
+    
     for (let card of visibleDeck.splice(0, visibleDeck.length)){
       deck.unshift(card);
     }
-    if (deck.length > 2){
-      for (let card of deck.splice(deck.length-3, 3)){
-        visibleDeck.push(card);
-      }
-    }
-    else{
-      deck.splice(0, deck.length);
+
+    let startingIndex = deck.length > 2 ? deck.length - 3 : 0;
+    
+    for (let card of deck.splice(startingIndex, deck.length - startingIndex)){
+      visibleDeck.push(card);
     }
   }
-  if (mouseX > width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseX < width/2-CARD_WIDTH*1.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
-    movingCards = [];
-    movingCards.push(visibleDeck.pop());
-    movingCards[0].isInAcePile = "neither";
-    cardMoving = true;
+
+  //checks if cards taken out of the upper left deck were clicked
+  if (visibleDeck.length > 0){
+    if (mouseX > width/2-CARD_WIDTH*2.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseX < width/2-CARD_WIDTH*1.5-AISLE_WIDTH*2 + CARD_TOP_GAP*(visibleDeck.length-1) && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
+      movingCards = [];
+      movingCards.push(visibleDeck.pop());
+      movingCards[0].homePile = "visible deck";
+      cardMoving = true;
+    }
   }
 }
 
@@ -227,6 +257,7 @@ function mouseReleased(){
         cardMoving = false;
       }
     }
+
     //ace deck
     for (let i = 0; i < acePilesList.length; i++){
       if (mouseX > width/2-CARD_WIDTH*0.5 + (CARD_WIDTH+AISLE_WIDTH)*i && mouseX < width/2+CARD_WIDTH*0.5+ (CARD_WIDTH+AISLE_WIDTH)*i && movingCards.length === 1 && mouseY > height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP && mouseY < height/2 - CARD_HEIGHT*0.5 - 2*CARD_TOP_GAP){
@@ -244,13 +275,16 @@ function mouseReleased(){
         }
       }
     }
-    //put back
+  }
+
+  // put back
+  if (cardMoving){
     for (card of movingCards){
-      if (card.isInAcePile === true){
-        acePilesList[card.homePile].push(card);
+      if (card.homePile === "ace piles"){
+        acePilesList[card.homePileIndex].push(card);
       }
-      else if (card.isInAcePile === false){
-        pilesList[card.homePile].push(card);
+      else if (card.homePile === "lower piles"){
+        pilesList[card.homePileIndex].push(card);
       }
       else{
         visibleDeck.push(card);
