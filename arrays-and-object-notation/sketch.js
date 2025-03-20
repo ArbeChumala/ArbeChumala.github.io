@@ -26,6 +26,7 @@ let movingCards;
 let mouseXList = [];
 let mouseYList = [];
 let cardMoving = false;
+let moveCounter = 0;
 const CARD_WIDTH = 88;
 const CARD_HEIGHT = 124;
 const AISLE_WIDTH = 20;
@@ -37,11 +38,23 @@ function setup() {
   gameSetup();
 }
 
+function windowResized(){
+  createCanvas(windowWidth, windowHeight);
+  gameSetup();
+}
+
 function gameSetup(){
+  resetVariables();
   generateCards();
   shuffleCards();
   assignCardImage();
   initializeCardArrays();
+}
+
+function resetVariables(){
+  moveCounter = 0;
+  cardList = [];
+  cardMoving = false;
 }
 
 function draw() {
@@ -60,6 +73,7 @@ function preload(){
   cardBack = loadImage("assets/card-backing.png");
   placeHolder = loadImage("assets/placeholder-spot.png");
   acePlaceHolder = loadImage("assets/aceplaceholder.png");
+  jazzMusic = loadSound("assets/jazz-music.mp3");
 }
 
 function updateVariables(){
@@ -182,6 +196,11 @@ function displayPiles(){
 function mousePressed(){
   movingCards = [];
 
+  if (!jazzMusic.isPlaying()){
+    jazzMusic.loop();
+    jazzMusic.volume(0.4);
+  }
+
   //checks if regular deck cards were clicked (piles 1-7)
   for (let ix = 0; ix<pilesList.length; ix++){
     for (let iy = 0; iy<pilesList[ix].length; iy++){
@@ -299,6 +318,9 @@ function mouseReleased(){
       }
     }
     cardMoving = false;
+  }
+  else{
+    moveCounter ++;
   }
 }
 
