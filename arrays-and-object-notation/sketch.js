@@ -59,6 +59,7 @@ function preload(){
   spadesPack = loadImage("assets/spades.png");
   cardBack = loadImage("assets/card-backing.png");
   placeHolder = loadImage("assets/placeholder-spot.png");
+  acePlaceHolder = loadImage("assets/aceplaceholder.png");
 }
 
 function updateVariables(){
@@ -328,7 +329,7 @@ function displayPlaceholders(){
     image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT/2, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
 
     if (i>2){
-      image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+      image(acePlaceHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3 + (CARD_WIDTH+AISLE_WIDTH)*i, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, CARD_WIDTH*(i-3), 0, CARD_WIDTH, CARD_HEIGHT);
     }
   }
   for (let i = 0; i < deck.length; i++){
