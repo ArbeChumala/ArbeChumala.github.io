@@ -63,6 +63,9 @@ function draw() {
   displayPlaceholders();
   displayPiles();
   displayMovingCards();
+  if (gameIsDone){
+    displayWinScreen();
+  }
 }
 
 function preload(){
@@ -358,3 +361,16 @@ function displayPlaceholders(){
     image(placeHolder, width/2-CARD_WIDTH*3.5-AISLE_WIDTH*3, height/2 - CARD_HEIGHT*1.5 - 2*CARD_TOP_GAP, CARD_WIDTH, CARD_HEIGHT, 0, 0, CARD_WIDTH, CARD_HEIGHT);
   }
 }
+
+// function gameIsDone(){
+//   for (let pile of pilesList){
+//     if (pile.length !== 13 && pile.length !== 0){
+//       return false;
+//     }
+//   }
+//   return true;
+// }
+
+// function displayWinScreen(){
+//   console.log(`you won in ${moveCounter} moves`);
+// }
