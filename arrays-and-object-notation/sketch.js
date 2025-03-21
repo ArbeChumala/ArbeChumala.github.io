@@ -331,6 +331,8 @@ function mousePressed(){
     for (let card of deck.splice(startingIndex, deck.length - startingIndex)){
       visibleDeck.push(card);
     }
+    
+    moveCounter++;
 
   }
 
