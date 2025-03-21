@@ -109,6 +109,8 @@ function resetVariables(){
   timer = 0;
   moveCounter = 0;
   cardList = [];
+  acePilesList = [];
+  visibleDeck = [];
   cardMoving = false;
   victoryMusicPlayed = false;
 }
