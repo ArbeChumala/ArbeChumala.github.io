@@ -1,6 +1,6 @@
 // Arrays and Object Notation
 // Arbe Chumala
-// Thursday March 20, 2025
+// March 20, 2025
 //
 // Extra for Experts:
 // - added background music
@@ -72,7 +72,7 @@ function preload(){
   acePlaceHolder = loadImage("assets/aceplaceholder.png");
   textBacking = loadImage("assets/text-backing.png");
   jazzMusic = loadSound("assets/jazz-music.mp3");
-  gameFont = loadFont("assets/game-font.otf");
+  gameFont = loadFont("assets/gamefont.otf");
   failure = loadSound("assets/failure.mp3");
   success = loadSound("assets/success.mp3");
   victory = loadSound("assets/victory.mp3");
