@@ -109,7 +109,10 @@ function resetVariables(){
   timer = 0;
   moveCounter = 0;
   cardList = [];
-  acePilesList = [];
+  clubsPile = [];
+  heartsPile = [];
+  spadesPile = [];
+  diamondsPile = [];
   visibleDeck = [];
   cardMoving = false;
   victoryMusicPlayed = false;
