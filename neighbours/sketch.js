@@ -1,11 +1,5 @@
 // 2D Array Grid Demo
 
-// let grid = [[0,1,1,0],
-//             [1,0,0,0],
-//             [0,0,1,1],
-//             [0,1,0,0]];
-
-
 let cellSize;
 const SQUARE_DIMENSIONS = 10;
 let grid;
@@ -13,13 +7,47 @@ let grid;
 function setup() {
   noStroke();
   makeCanvas();
-  grid = generateGrid(SQUARE_DIMENSIONS, SQUARE_DIMENSIONS);
+  grid = generateRandomGrid(SQUARE_DIMENSIONS, SQUARE_DIMENSIONS);
+}
+
+function toggleCell(ix, iy){
+  if (ix < SQUARE_DIMENSIONS && iy < SQUARE_DIMENSIONS && ix >=0 && iy>=0){
+    if (grid[iy][ix]===1){
+      grid[iy][ix] = 0;
+    }
+    else{
+      grid[iy][ix] = 1;
+    }
+  }
+}
+
+function toggleNeighbours(x, y){
+  toggleCell(x+1, y);
+  toggleCell(x, y);
+  toggleCell(x-1, y);
+  toggleCell(x, y+1);
+  toggleCell(x, y-1);
 }
 
 function keyPressed(){
-  if (key === " "){
+  if (key === "r"){
+    grid = generateRandomGrid(SQUARE_DIMENSIONS, SQUARE_DIMENSIONS);
+  }
+  else if (key === "e"){
     grid = generateGrid(SQUARE_DIMENSIONS, SQUARE_DIMENSIONS);
   }
+}
+
+function generateRandomGrid(columns, rows){
+  let newGrid = [];
+  for (y = 0; y < rows; y++){
+    newGrid.push([]);
+    for (let x = 0; x<columns; x++){
+      let number = Math.round(random());
+      newGrid[y].push(number);
+    }
+  }
+  return newGrid;
 }
 
 function generateGrid(columns, rows){
@@ -27,8 +55,7 @@ function generateGrid(columns, rows){
   for (y = 0; y < rows; y++){
     newGrid.push([]);
     for (let x = 0; x<columns; x++){
-      let number = Math.round(random());
-      newGrid[y].push(number);
+      newGrid[y].push(0);
     }
   }
   return newGrid;
@@ -51,12 +78,8 @@ function draw() {
 function mouseClicked(){
   let ix = Math.floor(mouseX/min(width,height)*SQUARE_DIMENSIONS);
   let iy = Math.floor(mouseY/min(width,height)*SQUARE_DIMENSIONS);
-  if (grid[iy][ix]){
-    grid[iy][ix] = 0;
-  }
-  else{
-    grid[iy][ix] = 1;
-  }
+  toggleNeighbours(ix,iy);
+  
   
 }
 
