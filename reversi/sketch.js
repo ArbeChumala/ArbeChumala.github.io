@@ -11,7 +11,7 @@ let BLACK = 1;
 
 let GRID_DIMENSIONS = 8;
 
-let moveCounter = 0;
+let whiteIsPlaying = false;
 
 let grid = generateGrid();
 
@@ -44,17 +44,26 @@ function draw() {
 }
 
 function findMoves() {
+  let movesArray = [];
+
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for (let x = 0; x<GRID_DIMENSIONS; x++){
-      let xChange = [1, 1, 0, -1, -1, -1, 0, 1];
-      let yChange = [0, 1, 1, 1, 0, -1, -1, -1];
 
-      for (let i = 0; i<8; i++){
-        let counter = 1;
-        while (grid[y+yChange*counter][x+xChange*counter] !== moveCounter%2 && grid[y+yChange*counter][x+xChange*counter] !== EMPTY){
+      if (grid[y][x] === WHITE || !whiteIsPlaying && grid[y][x] !== EMPTY){
+        let ix = [1, 1, 0, -1, -1, -1, 0, 1];
+        let iy = [0, 1, 1, 1, 0, -1, -1, -1];
+        
+        for (let i = 0; i<8; i++){
+          let counter = 1;
 
+          while ((grid[y+iy[i]*counter][x+ix[i]*counter] !== WHITE || whiteIsPlaying) && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+            counter++;
+            console.log(y+iy[i], x+ix[x]);
+          }
+          
         }
       }
     }
   }
+  return movesArray;
 }

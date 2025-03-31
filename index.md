@@ -11,6 +11,7 @@
 - [Rectangle Grid](rectangle-grid)
 - [Game of Life](game-of-life)
 - [Character Moving in Grid](character-grid)
+- [Platformer](platformer)
 
 # Cs30 Projects
 - [Interactive Scene](interactive-scene)
