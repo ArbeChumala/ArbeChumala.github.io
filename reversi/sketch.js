@@ -5,7 +5,7 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-let EMPTY = -1;
+let EMPTY = 9;
 let WHITE = 0;
 let BLACK = 1;
 
@@ -43,22 +43,25 @@ function draw() {
   background(220);
 }
 
-function findMoves() {
+function findMoves(currentPlayer) {
   let movesArray = [];
 
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for (let x = 0; x<GRID_DIMENSIONS; x++){
 
-      if (grid[y][x] === WHITE || !whiteIsPlaying && grid[y][x] !== EMPTY){
+      if (grid[y][x] === currentPlayer){
         let ix = [1, 1, 0, -1, -1, -1, 0, 1];
         let iy = [0, 1, 1, 1, 0, -1, -1, -1];
         
         for (let i = 0; i<8; i++){
           let counter = 1;
 
-          while ((grid[y+iy[i]*counter][x+ix[i]*counter] !== WHITE || whiteIsPlaying) && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+          //place you're looking is not white or white is Playing
+          while (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY && grid[y+iy[i]*counter][x+ix[i]*counter] !== 2){
             counter++;
-            console.log(y+iy[i], x+ix[x]);
+          }
+          if(grid[y+iy[i]*counter][x+ix[i]*counter] === EMPTY){
+            grid[y+iy[i]*counter][x+ix[i]*counter] = 2;
           }
           
         }
