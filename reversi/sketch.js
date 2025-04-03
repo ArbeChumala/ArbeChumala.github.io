@@ -51,7 +51,13 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  background(27, 117, 92);
+  displayGrid();
+}
+
+function displayGrid(){
+  //display the grid at the centre of the canvas
+  //display the tiles on the grid
 }
 
 function findMoves() {
