@@ -1,6 +1,6 @@
 // 2D Arrays Assignment
 // Arbe Chumala
-// April 7, 2025
+// April 10, 2025
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
@@ -14,6 +14,7 @@ let GRID_DIMENSIONS = 8;
 let whiteIsPlaying = false;
 
 let grid = generateGrid();
+let drawingGrid = structuredClone(grid);
 let movesArray;
 let currentPlayer = WHITE;
 
@@ -21,6 +22,9 @@ let whiteTile;
 let blackTile;
 let blackGhostTile;
 let whiteGhostTile;
+
+let whiteTileCount = 2;
+let blackTileCount = 2;
 
 let resizingRatio;
 let cellSize;
@@ -32,10 +36,16 @@ let startingMouseY;
 let gridUnit;
 
 function toggleCurrentPlayer(){
-  currentPlayer = currentPlayer - 1 ? WHITE: BLACK;
+  currentPlayer = currentPlayer === BLACK ? WHITE: BLACK;
+  let otherPlayer = currentPlayer === BLACK ? WHITE: BLACK;
   
   if (!findMoves(currentPlayer)){
-    toggleCurrentPlayer();
+    if(findMoves(otherPlayer)){
+      toggleCurrentPlayer();
+    }
+    else{
+      determineWinner();
+    }
   }
 }
 
@@ -84,6 +94,7 @@ function preload(){
 
 function draw() {
   background(27, 117, 92);
+  updateDrawingGrid();
   displayGrid();
 }
 
@@ -93,10 +104,10 @@ function displayGrid(){
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for(let x = 0; x<GRID_DIMENSIONS; x++){
 
-      if (grid[y][x]===BLACK){
+      if (drawingGrid[y][x]===BLACK){
         image(blackTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, blackTile.width*resizingRatio, blackTile.height*resizingRatio);
       }
-      else if (grid[y][x]===WHITE){
+      else if (drawingGrid[y][x]===WHITE){
         image(whiteTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, whiteTile.width*resizingRatio, whiteTile.height*resizingRatio);
       }
 
@@ -113,8 +124,6 @@ function displayGrid(){
 function mousePressed(){
   let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
   let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
-
-  console.log(playerY, playerX);
 
   if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >=0 && playerY <GRID_DIMENSIONS){
     playerMoves(playerX, playerY);
@@ -165,31 +174,62 @@ function findMoves() {
 
 function playerMoves(x, y){
   if (movesArray[y][x]){
-    let ix = [1, 1, 0, -1, -1, -1, 0, 1];
-    let iy = [0, 1, 1, 1, 0, -1, -1, -1];
-    
-    for (let i = 0; i<8; i++){
-      let counter = 1;
-
-      //place you're looking for is the current player
-      while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
-             x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
-             grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
-             grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
-        counter++;
-        console.log(counter);
-      }
-      //you have stopped and can only mark it if it is empty
-      if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
-         x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
-         grid[y+iy[i]*counter][x+ix[i]*counter] === currentPlayer && 
-         counter>1){
-        for (counter; counter >=0; counter --){
-          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
-        }
-      }      
-    }
-
+    changeGrid(x, y, grid);
+    updateTileCount();
     toggleCurrentPlayer();
+  }
+}
+
+function updateTileCount(){
+  for (let y = 0; y<GRID_DIMENSIONS; y++){
+    for(let x = 0; x<GRID_DIMENSIONS; x++){
+      if (grid[y][x] === WHITE){
+        whiteTileCount++;
+      }
+      else if(grid[y][x] === BLACK){
+        blackTileCount++;
+      }
+    }
+  }
+}
+
+function updateDrawingGrid(){
+  let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
+  let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
+  
+  drawingGrid = structuredClone(grid);
+}
+
+function changeGrid(x, y, theGrid){
+  let ix = [1, 1, 0, -1, -1, -1, 0, 1];
+  let iy = [0, 1, 1, 1, 0, -1, -1, -1];
+  
+  for (let i = 0; i<8; i++){
+    let counter = 1;
+
+    //place you're looking for is the current player
+    while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
+            x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
+            grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
+            grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+      counter++;
+    }
+    //you have stopped and can only mark it if it is empty
+    if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
+        x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
+        grid[y+iy[i]*counter][x+ix[i]*counter] === currentPlayer && 
+        counter>1){
+      for (counter; counter >=0; counter --){
+        theGrid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+      }
+    }      
+  }
+
+}
+
+function determineWinner(){
+  let theWinner = "Black";
+  if (whiteTileCount > blackTileCount){
+    theWinner = "White";
   }
 }
