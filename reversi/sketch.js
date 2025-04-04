@@ -13,7 +13,7 @@ let GRID_DIMENSIONS = 8;
 
 let whiteIsPlaying = false;
 
-let grid = generateGrid();
+let grid = generateStartGrid();
 let drawingGrid = structuredClone(grid);
 let movesArray;
 let currentPlayer = WHITE;
@@ -34,6 +34,8 @@ let startingImageY;
 let startingMouseX;
 let startingMouseY;
 let gridUnit;
+let mode = "pvp";
+let timerStarted = false;
 
 function toggleCurrentPlayer(){
   currentPlayer = currentPlayer === BLACK ? WHITE: BLACK;
@@ -49,7 +51,7 @@ function toggleCurrentPlayer(){
   }
 }
 
-function generateGrid(){
+function generateEmptyGrid(){
   let newGrid = [];
 
   for (let y = 0; y<GRID_DIMENSIONS; y++){
@@ -59,6 +61,12 @@ function generateGrid(){
       newGrid[y].push(EMPTY);
     }
   }
+
+  return newGrid;
+}
+
+function generateStartGrid(){
+  let newGrid = generateEmptyGrid();
 
   newGrid[3][3] = WHITE;
   newGrid[3][4] = BLACK;
@@ -94,8 +102,16 @@ function preload(){
 
 function draw() {
   background(27, 117, 92);
+  startBotTimer();
   updateDrawingGrid();
   displayGrid();
+}
+
+function startBotTimer(){
+  if (!timerStarted && currentPlayer === WHITE && mode === "pvb"){
+    setTimeout(botMoves, 1000);
+    timerStarted = true;
+  }
 }
 
 function displayGrid(){
@@ -125,27 +141,22 @@ function mousePressed(){
   let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
   let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
 
-  if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >=0 && playerY <GRID_DIMENSIONS){
-    playerMoves(playerX, playerY);
+  if(mode === "pvp" || currentPlayer === BLACK){
+    if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >=0 && playerY <GRID_DIMENSIONS){
+      playerMoves(playerX, playerY);
+    }
   }
 }
 
-function findMoves() {
+function findMoves(thePlayer) {
   let moveFound = false;
-  movesArray = [];
-  for (let y = 0; y<GRID_DIMENSIONS; y++){
-    movesArray.push([]);
+  movesArray = generateEmptyGrid();
 
-    for (let x = 0; x<GRID_DIMENSIONS; x++){
-      movesArray[y].push(0);
-    }
-  }
-  
 
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for (let x = 0; x<GRID_DIMENSIONS; x++){
 
-      if (grid[y][x] === currentPlayer){
+      if (grid[y][x] === thePlayer){
         let ix = [1, 1, 0, -1, -1, -1, 0, 1];
         let iy = [0, 1, 1, 1, 0, -1, -1, -1];
         
@@ -180,7 +191,33 @@ function playerMoves(x, y){
   }
 }
 
+function botMoves(){
+  if(currentPlayer === WHITE && mode=== "pvb"){
+    let maxGain = 0;
+    let botX;
+    let botY;
+
+    if(findMoves(currentPlayer)){
+      for(let y = 0; y<GRID_DIMENSIONS; y++){
+        for(let x = 0; x<GRID_DIMENSIONS; x++){
+          if (movesArray[y][x] > maxGain){
+            maxGain = grid[y][x];
+            botX = x;
+            botY = y;
+          }
+        }
+      }
+    
+      playerMoves(botX, botY);
+      timerStarted = false;
+    }
+  }
+}
+
 function updateTileCount(){
+  whiteTileCount = 0;
+  blackTileCount = 0;
+
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for(let x = 0; x<GRID_DIMENSIONS; x++){
       if (grid[y][x] === WHITE){
