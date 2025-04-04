@@ -144,10 +144,15 @@ function findMoves() {
           let counter = 1;
 
           //place you're looking is not white or white is Playing
-          while (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+          while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
+                 x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
+                 grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
+                 grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
             counter++;
           }
-          if(grid[y+iy[i]*counter][x+ix[i]*counter] === EMPTY && counter>1){
+          if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
+             x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
+             grid[y+iy[i]*counter][x+ix[i]*counter] === EMPTY && counter>1){
             movesArray[y+iy[i]*counter][x+ix[i]*counter] += counter-1;
             moveFound = true;
           }
