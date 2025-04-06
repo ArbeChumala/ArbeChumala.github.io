@@ -37,7 +37,7 @@ let startingImageY;
 let startingMouseX;
 let startingMouseY;
 let gridUnit;
-let mode = "pvp";
+let mode = "pvb";
 let timerStarted = false;
 
 function toggleCurrentPlayer(){
