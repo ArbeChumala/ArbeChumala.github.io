@@ -5,11 +5,14 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-let EMPTY = 0;
-let WHITE = 1;
-let BLACK = 2;
+const EMPTY = 0;
+const WHITE = 1;
+const BLACK = 2;
 
-let GRID_DIMENSIONS = 8;
+const ANIMATION_DELAY = 2;
+let animationFrameArray = [];
+
+const GRID_DIMENSIONS = 8;
 
 let whiteIsPlaying = false;
 
@@ -98,6 +101,9 @@ function preload(){
   whiteTile = loadImage("assets/white-tile.png");
   whiteGhostTile = loadImage("assets/ghost-white-tile.png");
   blackGhostTile = loadImage("assets/ghost-black-tile.png");
+  for (let i = 0; i<=12; i++){
+    animationFrameArray.push(loadImage(`assets/animation-frames/${i}.png`));
+  }
 }
 
 function draw() {
@@ -120,16 +126,34 @@ function displayGrid(){
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for(let x = 0; x<GRID_DIMENSIONS; x++){
 
-      if (drawingGrid[y][x]===BLACK){
+      if (grid[y][x]===BLACK){
         image(blackTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, blackTile.width*resizingRatio, blackTile.height*resizingRatio);
       }
-      else if (drawingGrid[y][x]===WHITE){
+      else if (grid[y][x]===WHITE){
         image(whiteTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, whiteTile.width*resizingRatio, whiteTile.height*resizingRatio);
+      }
+      else if (grid[y][x] !== EMPTY){
+        let img = animationFrameArray[grid[y][x].animationFrame];
+        let sizeFactor = (-abs(grid[y][x].animationFrame-6)+7)/10;
+        image(img, startingImageX+x*gridUnit, startingImageY+y*gridUnit,img.width*resizingRatio, img.height*resizingRatio+img.height*sizeFactor);
+      }
+      
+      if(frameCount%ANIMATION_DELAY === 0){
+        if (grid[y][x].number === WHITE){
+          grid[y][x].animationFrame ++;
+        }
+  
+        else if (grid[y][x].number === BLACK){
+          grid[y][x].animationFrame --;
+        }
+
+        if(grid[y][x].animationFrame === 0 || grid[y][x].animationFrame ===12){
+          grid[y][x] = grid[y][x].number;
+        }
       }
 
       if (movesArray[y][x]){
         let theImage = currentPlayer - 1 ? blackGhostTile: whiteGhostTile;
-
         image(theImage,startingImageX+x*gridUnit, startingImageY+y*gridUnit, theImage.width*resizingRatio, theImage.height*resizingRatio);
       }
       
@@ -257,7 +281,16 @@ function changeGrid(x, y, theGrid){
         grid[y+iy[i]*counter][x+ix[i]*counter] === currentPlayer && 
         counter>1){
       for (counter; counter >=0; counter --){
-        theGrid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+        let flippingTile = {
+          number: currentPlayer,
+          animationFrame: grid[y+iy[i]*counter][x+ix[i]*counter] === WHITE ? 12:0,
+        };
+        if (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+          grid[y+iy[i]*counter][x+ix[i]*counter] = flippingTile;
+        }
+        else{
+          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+        }
       }
     }      
   }
