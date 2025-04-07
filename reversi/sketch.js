@@ -37,8 +37,10 @@ let startingImageY;
 let startingMouseX;
 let startingMouseY;
 let gridUnit;
-let mode = "pvb";
+let mode = "pvp";
 let timerStarted = false;
+
+let gameFont;
 
 function toggleCurrentPlayer(){
   currentPlayer = currentPlayer === BLACK ? WHITE: BLACK;
@@ -84,6 +86,10 @@ function setup() {
   toggleCurrentPlayer();
   noSmooth();
   imageMode(CENTER);
+  textFont(gameFont);
+  textAlign(CENTER);
+  fill(255);
+  textSize(40);
   resizingRatio = height/228;
   cellSize = 18*resizingRatio;
   aisleSize = 1*resizingRatio;
@@ -92,7 +98,6 @@ function setup() {
   startingImageY = height/2 - 3.5*gridUnit;
   startingMouseX = startingImageX - 0.5*cellSize;
   startingMouseY = startingImageY - 0.5*cellSize;
-  
 }
 
 function preload(){
@@ -101,6 +106,7 @@ function preload(){
   whiteTile = loadImage("assets/white-tile.png");
   whiteGhostTile = loadImage("assets/ghost-white-tile.png");
   blackGhostTile = loadImage("assets/ghost-black-tile.png");
+  gameFont = loadFont("assets/gamefont.otf");
   for (let i = 0; i<=12; i++){
     animationFrameArray.push(loadImage(`assets/animation-frames/${i}.png`));
   }
@@ -109,8 +115,22 @@ function preload(){
 function draw() {
   background(27, 117, 92);
   startBotTimer();
-  updateDrawingGrid();
   displayGrid();
+  displayScore();
+}
+
+function displayScore(){
+  text(blackTileCount, width/2-6*gridUnit, height/2+gridUnit*0.5);
+  text(whiteTileCount, width/2+6*gridUnit, height/2+gridUnit*0.5);
+
+  if (currentPlayer === BLACK){
+    image(blackTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
+    image(whiteGhostTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
+  }
+  else{
+    image(blackGhostTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
+    image(whiteTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
+  }
 }
 
 function startBotTimer(){
@@ -126,29 +146,29 @@ function displayGrid(){
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for(let x = 0; x<GRID_DIMENSIONS; x++){
 
-      if (grid[y][x]===BLACK){
+      if (drawingGrid[y][x]===BLACK){
         image(blackTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, blackTile.width*resizingRatio, blackTile.height*resizingRatio);
       }
-      else if (grid[y][x]===WHITE){
+      else if (drawingGrid[y][x]===WHITE){
         image(whiteTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, whiteTile.width*resizingRatio, whiteTile.height*resizingRatio);
       }
-      else if (grid[y][x] !== EMPTY){
-        let img = animationFrameArray[grid[y][x].animationFrame];
-        let sizeFactor = (-abs(grid[y][x].animationFrame-6)+7)/10;
+      else if (drawingGrid[y][x] !== EMPTY){
+        let img = animationFrameArray[drawingGrid[y][x].animationFrame];
+        let sizeFactor = (-abs(drawingGrid[y][x].animationFrame-6)+7)/10;
         image(img, startingImageX+x*gridUnit, startingImageY+y*gridUnit,img.width*resizingRatio, img.height*resizingRatio+img.height*sizeFactor);
       }
       
       if(frameCount%ANIMATION_DELAY === 0){
-        if (grid[y][x].number === WHITE){
-          grid[y][x].animationFrame ++;
+        if (drawingGrid[y][x].number === WHITE){
+          drawingGrid[y][x].animationFrame ++;
         }
   
-        else if (grid[y][x].number === BLACK){
-          grid[y][x].animationFrame --;
+        else if (drawingGrid[y][x].number === BLACK){
+          drawingGrid[y][x].animationFrame --;
         }
 
-        if(grid[y][x].animationFrame === 0 || grid[y][x].animationFrame ===12){
-          grid[y][x] = grid[y][x].number;
+        if(drawingGrid[y][x].animationFrame === 0 || drawingGrid[y][x].animationFrame ===12){
+          drawingGrid[y][x] = drawingGrid[y][x].number;
         }
       }
 
@@ -209,7 +229,7 @@ function findMoves(thePlayer) {
 
 function playerMoves(x, y){
   if (movesArray[y][x]){
-    changeGrid(x, y, grid);
+    changeGrid(x, y);
     updateTileCount();
     toggleCurrentPlayer();
   }
@@ -254,16 +274,11 @@ function updateTileCount(){
   }
 }
 
-function updateDrawingGrid(){
-  let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
-  let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
-  
-  drawingGrid = structuredClone(grid);
-}
-
-function changeGrid(x, y, theGrid){
+function changeGrid(x, y){
   let ix = [1, 1, 0, -1, -1, -1, 0, 1];
   let iy = [0, 1, 1, 1, 0, -1, -1, -1];
+  
+  drawingGrid = structuredClone(grid);
   
   for (let i = 0; i<8; i++){
     let counter = 1;
@@ -286,10 +301,12 @@ function changeGrid(x, y, theGrid){
           animationFrame: grid[y+iy[i]*counter][x+ix[i]*counter] === WHITE ? 12:0,
         };
         if (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
-          grid[y+iy[i]*counter][x+ix[i]*counter] = flippingTile;
+          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+          drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = flippingTile;
         }
         else{
           grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+          drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
         }
       }
     }      
