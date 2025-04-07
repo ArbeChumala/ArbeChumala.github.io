@@ -190,7 +190,7 @@ function findMoves(thePlayer) {
           //place you're looking is not white or white is Playing
           while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
                  x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
-                 grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
+                 grid[y+iy[i]*counter][x+ix[i]*counter] !== thePlayer && 
                  grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
             counter++;
           }
