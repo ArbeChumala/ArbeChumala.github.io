@@ -9,6 +9,11 @@ const EMPTY = 0;
 const WHITE = 1;
 const BLACK = 2;
 
+const DELTA_NOISE_TIMER = 0.01;
+let noiseTimer = 0;
+
+let gameOver = false;
+
 const ANIMATION_DELAY = 2;
 let animationFrameArray = [];
 
@@ -53,6 +58,17 @@ function toggleCurrentPlayer(){
     else{
       determineWinner();
     }
+  }
+}
+
+function setCursor(){
+  let x = Math.floor((mouseX-startingMouseX)/gridUnit);
+  let y = Math.floor((mouseY-startingMouseY)/gridUnit);
+  if (y<GRID_DIMENSIONS && y>=0 && x<GRID_DIMENSIONS && x>=0 && movesArray[y][x]&&(currentPlayer === BLACK || mode === "pvp")){
+    cursor(HAND);
+  }
+  else{
+    cursor(ARROW);
   }
 }
 
@@ -117,6 +133,8 @@ function draw() {
   startBotTimer();
   displayGrid();
   displayScore();
+  setCursor();
+  displayWinScreen();
 }
 
 function displayScore(){
@@ -240,18 +258,45 @@ function botMoves(){
     let maxGain = 0;
     let botX;
     let botY;
+    let moveFound = false;
 
     if(findMoves(currentPlayer)){
       for(let y = 0; y<GRID_DIMENSIONS; y++){
         for(let x = 0; x<GRID_DIMENSIONS; x++){
-          if (movesArray[y][x] > maxGain){
-            maxGain = movesArray[y][x];
-            botX = x;
+          if(!((y===1 || y===6||y===0||y===7)&& (x===1 ||x===6||x===0||x===7))){
+            if (movesArray[y][x] > maxGain){
+              maxGain = movesArray[y][x];
+              botX = x;
+              botY = y;
+              moveFound = true;
+            }
+          }
+        }
+      }
+
+      if(!moveFound){
+        for(let y = 0; y<GRID_DIMENSIONS; y++){
+          for(let x = 0; x<GRID_DIMENSIONS; x++){
+            if (movesArray[y][x] > maxGain){
+              maxGain = movesArray[y][x];
+              botX = x;
+              botY = y;
+            }
+          }
+        }
+      }
+
+      for(let y = 0; y<8; y+=7){
+        for(let x = 0; x<8; x+=7){
+          if(movesArray[y][x]){
             botY = y;
+            botX = x;
           }
         }
       }
       
+      console.log(movesArray);
+      console.log(botX, botY);
       playerMoves(botX, botY);
       timerStarted = false;
     }
@@ -315,8 +360,18 @@ function changeGrid(x, y){
 }
 
 function determineWinner(){
-  let theWinner = "Black";
-  if (whiteTileCount > blackTileCount){
-    theWinner = "White";
+  theWinner = whiteTileCount > blackTileCount ? "WHITE":"BLACK";
+  gameOver = true;
+}
+
+function displayWinScreen(){
+  if(gameOver){
+    let x = noise(noiseTimer, 0)*width;
+    let y = noise(0, noiseTimer)*height;
+  
+    noiseTimer += DELTA_NOISE_TIMER;
+  
+    textSize(70);
+    text(`CONGRATULATIONS, ${theWinner} WON!`, x, y);
   }
 }
