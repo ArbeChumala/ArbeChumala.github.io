@@ -37,7 +37,7 @@ let startingImageY;
 let startingMouseX;
 let startingMouseY;
 let gridUnit;
-let mode = "pvp";
+let mode = "pvb";
 let timerStarted = false;
 
 let gameFont;
@@ -172,7 +172,7 @@ function displayGrid(){
         }
       }
 
-      if (movesArray[y][x]){
+      if (movesArray[y][x] && (mode === "pvp" || currentPlayer === BLACK)){
         let theImage = currentPlayer - 1 ? blackGhostTile: whiteGhostTile;
         image(theImage,startingImageX+x*gridUnit, startingImageY+y*gridUnit, theImage.width*resizingRatio, theImage.height*resizingRatio);
       }
@@ -245,13 +245,13 @@ function botMoves(){
       for(let y = 0; y<GRID_DIMENSIONS; y++){
         for(let x = 0; x<GRID_DIMENSIONS; x++){
           if (movesArray[y][x] > maxGain){
-            maxGain = grid[y][x];
+            maxGain = movesArray[y][x];
             botX = x;
             botY = y;
           }
         }
       }
-    
+      
       playerMoves(botX, botY);
       timerStarted = false;
     }
