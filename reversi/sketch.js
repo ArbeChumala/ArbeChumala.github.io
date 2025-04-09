@@ -1,39 +1,49 @@
-// 2D Arrays Assignment
+// 2D Arrays Assignment - Reversi
 // Arbe Chumala
 // April 10, 2025
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// - made a (challenging, sigh) reversi bot to play against
+// - changed the appearance of the cursor based on mouseX and mouseY
+// - manually animated the flipping of the tiles (so tedious)
+// - uploaded a custom font
 
+//grid and tile constants
 const EMPTY = 0;
 const WHITE = 1;
 const BLACK = 2;
+const GRID_DIMENSIONS = 8;
 
+//perlin noise used for the congratulations message
 const DELTA_NOISE_TIMER = 0.01;
 let noiseTimer = 0;
 
-let gameOver = false;
-
+//global animation variables (30fps animation)
 const ANIMATION_DELAY = 2;
-let animationFrameArray = [];
 
-const GRID_DIMENSIONS = 8;
+//game states and variables
+let gameOver = false;
+let currentPlayer = WHITE;
+let whiteTileCount = 2;
+let blackTileCount = 2;
+let mode = "pvb";
+let timerStarted = false;
 
-let whiteIsPlaying = false;
-
+//grids
 let grid = generateStartGrid();
 let drawingGrid = structuredClone(grid);
 let movesArray;
-let currentPlayer = WHITE;
 
+//images, fonts, and animation frames
 let whiteTile;
 let blackTile;
 let blackGhostTile;
 let whiteGhostTile;
+let gameFont;
+let board;
+let animationFrameArray = [];
 
-let whiteTileCount = 2;
-let blackTileCount = 2;
-
+//coordinates and image size shortcuts
 let resizingRatio;
 let cellSize;
 let aisleSize;
@@ -42,79 +52,6 @@ let startingImageY;
 let startingMouseX;
 let startingMouseY;
 let gridUnit;
-let mode = "pvb";
-let timerStarted = false;
-
-let gameFont;
-
-function toggleCurrentPlayer(){
-  currentPlayer = currentPlayer === BLACK ? WHITE: BLACK;
-  let otherPlayer = currentPlayer === BLACK ? WHITE: BLACK;
-  
-  if (!findMoves(currentPlayer)){
-    if(findMoves(otherPlayer)){
-      toggleCurrentPlayer();
-    }
-    else{
-      determineWinner();
-    }
-  }
-}
-
-function setCursor(){
-  let x = Math.floor((mouseX-startingMouseX)/gridUnit);
-  let y = Math.floor((mouseY-startingMouseY)/gridUnit);
-  if (y<GRID_DIMENSIONS && y>=0 && x<GRID_DIMENSIONS && x>=0 && movesArray[y][x]&&(currentPlayer === BLACK || mode === "pvp")){
-    cursor(HAND);
-  }
-  else{
-    cursor(ARROW);
-  }
-}
-
-function generateEmptyGrid(){
-  let newGrid = [];
-
-  for (let y = 0; y<GRID_DIMENSIONS; y++){
-    newGrid.push([]);
-
-    for (let x = 0; x<GRID_DIMENSIONS; x++){
-      newGrid[y].push(EMPTY);
-    }
-  }
-
-  return newGrid;
-}
-
-function generateStartGrid(){
-  let newGrid = generateEmptyGrid();
-
-  newGrid[3][3] = WHITE;
-  newGrid[3][4] = BLACK;
-  newGrid[4][3] = BLACK;
-  newGrid[4][4] = WHITE;
-
-  return newGrid;
-}
-
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  toggleCurrentPlayer();
-  noSmooth();
-  imageMode(CENTER);
-  textFont(gameFont);
-  textAlign(CENTER);
-  fill(255);
-  textSize(40);
-  resizingRatio = height/228;
-  cellSize = 18*resizingRatio;
-  aisleSize = 1*resizingRatio;
-  gridUnit = aisleSize + cellSize;
-  startingImageX = width/2 - 3.5*gridUnit;
-  startingImageY = height/2 - 3.5*gridUnit;
-  startingMouseX = startingImageX - 0.5*cellSize;
-  startingMouseY = startingImageY - 0.5*cellSize;
-}
 
 function preload(){
   board = loadImage("assets/board.png");
@@ -128,86 +65,70 @@ function preload(){
   }
 }
 
-function draw() {
+function setup(){
+  setupCanvas();
+  toggleCurrentPlayer();
+
+  //setting visual parameters
+  imageMode(CENTER);
+  textAlign(CENTER);
+  textFont(gameFont);
+  textSize(40);
+  fill(255);
+}
+
+function windowResized(){
+  setupCanvas();
+}
+
+function setupCanvas(){
+  //makes canvas again and continues noSmooth()
+  createCanvas(windowWidth, windowHeight);
+  noSmooth();
+
+  //reassigns variables based on canvas size
+  resizingRatio = height/228;
+  cellSize = 18*resizingRatio;
+  aisleSize = 1*resizingRatio;
+  gridUnit = aisleSize + cellSize;
+  startingImageX = width/2 - 3.5*gridUnit;
+  startingImageY = height/2 - 3.5*gridUnit;
+  startingMouseX = startingImageX - 0.5*cellSize;
+  startingMouseY = startingImageY - 0.5*cellSize;
+}
+
+function draw(){
   background(27, 117, 92);
   startBotTimer();
+  setCursor();
   displayGrid();
   displayScore();
-  setCursor();
   displayWinScreen();
 }
 
-function displayScore(){
-  text(blackTileCount, width/2-6*gridUnit, height/2+gridUnit*0.5);
-  text(whiteTileCount, width/2+6*gridUnit, height/2+gridUnit*0.5);
-
-  if (currentPlayer === BLACK){
-    image(blackTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
-    image(whiteGhostTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
-  }
-  else{
-    image(blackGhostTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
-    image(whiteTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
-  }
-}
-
-function startBotTimer(){
-  if (!timerStarted && currentPlayer === WHITE && mode === "pvb"){
-    setTimeout(botMoves, 1000);
-    timerStarted = true;
-  }
-}
-
-function displayGrid(){
-  image(board, width/2, height/2, board.width*resizingRatio, board.height*resizingRatio);
-
-  for (let y = 0; y<GRID_DIMENSIONS; y++){
-    for(let x = 0; x<GRID_DIMENSIONS; x++){
-
-      if (drawingGrid[y][x]===BLACK){
-        image(blackTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, blackTile.width*resizingRatio, blackTile.height*resizingRatio);
-      }
-      else if (drawingGrid[y][x]===WHITE){
-        image(whiteTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, whiteTile.width*resizingRatio, whiteTile.height*resizingRatio);
-      }
-      else if (drawingGrid[y][x] !== EMPTY){
-        let img = animationFrameArray[drawingGrid[y][x].animationFrame];
-        let sizeFactor = (-abs(drawingGrid[y][x].animationFrame-6)+7)/10;
-        image(img, startingImageX+x*gridUnit, startingImageY+y*gridUnit,img.width*resizingRatio, img.height*resizingRatio+img.height*sizeFactor);
-      }
-      
-      if(frameCount%ANIMATION_DELAY === 0){
-        if (drawingGrid[y][x].number === WHITE){
-          drawingGrid[y][x].animationFrame ++;
-        }
+function generateEmptyGrid(){
+  let newGrid = [];
   
-        else if (drawingGrid[y][x].number === BLACK){
-          drawingGrid[y][x].animationFrame --;
-        }
-
-        if(drawingGrid[y][x].animationFrame === 0 || drawingGrid[y][x].animationFrame ===12){
-          drawingGrid[y][x] = drawingGrid[y][x].number;
-        }
-      }
-
-      if (movesArray[y][x] && (mode === "pvp" || currentPlayer === BLACK)){
-        let theImage = currentPlayer - 1 ? blackGhostTile: whiteGhostTile;
-        image(theImage,startingImageX+x*gridUnit, startingImageY+y*gridUnit, theImage.width*resizingRatio, theImage.height*resizingRatio);
-      }
-      
+  for (let y = 0; y<GRID_DIMENSIONS; y++){
+    newGrid.push([]);
+    
+    for (let x = 0; x<GRID_DIMENSIONS; x++){
+      newGrid[y].push(EMPTY);
     }
   }
+  
+  return newGrid;
 }
 
-function mousePressed(){
-  let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
-  let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
+function generateStartGrid(){
+  let newGrid = generateEmptyGrid();
 
-  if(mode === "pvp" || currentPlayer === BLACK){
-    if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >=0 && playerY <GRID_DIMENSIONS){
-      playerMoves(playerX, playerY);
-    }
-  }
+  newGrid[3][3] = WHITE;
+  newGrid[3][4] = BLACK;
+  newGrid[4][3] = BLACK;
+  newGrid[4][4] = WHITE;
+  
+  return newGrid;
 }
 
 function findMoves(thePlayer) {
@@ -250,6 +171,83 @@ function playerMoves(x, y){
     changeGrid(x, y);
     updateTileCount();
     toggleCurrentPlayer();
+  }
+}
+
+function changeGrid(x, y){
+  let ix = [1, 1, 0, -1, -1, -1, 0, 1];
+  let iy = [0, 1, 1, 1, 0, -1, -1, -1];
+  
+  drawingGrid = structuredClone(grid);
+  
+  for (let i = 0; i<8; i++){
+    let counter = 1;
+
+    //place you're looking for is the current player
+    while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
+            x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
+            grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
+            grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+      counter++;
+    }
+    //you have stopped and can only mark it if it is empty
+    if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
+        x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
+        grid[y+iy[i]*counter][x+ix[i]*counter] === currentPlayer && 
+        counter>1){
+      for (counter; counter >=0; counter --){
+        let flippingTile = {
+          number: currentPlayer,
+          animationFrame: grid[y+iy[i]*counter][x+ix[i]*counter] === WHITE ? 12:0,
+        };
+        if (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+          drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = flippingTile;
+        }
+        else{
+          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+          drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
+        }
+      }
+    }      
+  }
+
+}
+
+function toggleCurrentPlayer(){
+  currentPlayer = currentPlayer === BLACK ? WHITE: BLACK;
+  let otherPlayer = currentPlayer === BLACK ? WHITE: BLACK;
+  
+  if (!findMoves(currentPlayer)){
+    if(findMoves(otherPlayer)){
+      toggleCurrentPlayer();
+    }
+    else{
+      determineWinner();
+    }
+  }
+}
+
+function updateTileCount(){
+  whiteTileCount = 0;
+  blackTileCount = 0;
+
+  for (let y = 0; y<GRID_DIMENSIONS; y++){
+    for(let x = 0; x<GRID_DIMENSIONS; x++){
+      if (grid[y][x] === WHITE){
+        whiteTileCount++;
+      }
+      else if(grid[y][x] === BLACK){
+        blackTileCount++;
+      }
+    }
+  }
+}
+
+function startBotTimer(){
+  if (!timerStarted && currentPlayer === WHITE && mode === "pvb"){
+    setTimeout(botMoves, 1000);
+    timerStarted = true;
   }
 }
 
@@ -303,65 +301,64 @@ function botMoves(){
   }
 }
 
-function updateTileCount(){
-  whiteTileCount = 0;
-  blackTileCount = 0;
-
-  for (let y = 0; y<GRID_DIMENSIONS; y++){
-    for(let x = 0; x<GRID_DIMENSIONS; x++){
-      if (grid[y][x] === WHITE){
-        whiteTileCount++;
-      }
-      else if(grid[y][x] === BLACK){
-        blackTileCount++;
-      }
-    }
-  }
-}
-
-function changeGrid(x, y){
-  let ix = [1, 1, 0, -1, -1, -1, 0, 1];
-  let iy = [0, 1, 1, 1, 0, -1, -1, -1];
-  
-  drawingGrid = structuredClone(grid);
-  
-  for (let i = 0; i<8; i++){
-    let counter = 1;
-
-    //place you're looking for is the current player
-    while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
-            x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
-            grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
-            grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
-      counter++;
-    }
-    //you have stopped and can only mark it if it is empty
-    if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
-        x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
-        grid[y+iy[i]*counter][x+ix[i]*counter] === currentPlayer && 
-        counter>1){
-      for (counter; counter >=0; counter --){
-        let flippingTile = {
-          number: currentPlayer,
-          animationFrame: grid[y+iy[i]*counter][x+ix[i]*counter] === WHITE ? 12:0,
-        };
-        if (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
-          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
-          drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = flippingTile;
-        }
-        else{
-          grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
-          drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
-        }
-      }
-    }      
-  }
-
-}
-
 function determineWinner(){
   theWinner = whiteTileCount > blackTileCount ? "WHITE":"BLACK";
   gameOver = true;
+}
+
+function displayGrid(){
+  image(board, width/2, height/2, board.width*resizingRatio, board.height*resizingRatio);
+
+  for (let y = 0; y<GRID_DIMENSIONS; y++){
+    for(let x = 0; x<GRID_DIMENSIONS; x++){
+
+      if (drawingGrid[y][x]===BLACK){
+        image(blackTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, blackTile.width*resizingRatio, blackTile.height*resizingRatio);
+      }
+      else if (drawingGrid[y][x]===WHITE){
+        image(whiteTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, whiteTile.width*resizingRatio, whiteTile.height*resizingRatio);
+      }
+      else if (drawingGrid[y][x] !== EMPTY){
+        let img = animationFrameArray[drawingGrid[y][x].animationFrame];
+        let sizeFactor = (-abs(drawingGrid[y][x].animationFrame-6)+7)/10;
+        image(img, startingImageX+x*gridUnit, startingImageY+y*gridUnit,img.width*resizingRatio, img.height*resizingRatio+img.height*sizeFactor);
+      }
+      
+      if(frameCount%ANIMATION_DELAY === 0){
+        if (drawingGrid[y][x].number === WHITE){
+          drawingGrid[y][x].animationFrame ++;
+        }
+  
+        else if (drawingGrid[y][x].number === BLACK){
+          drawingGrid[y][x].animationFrame --;
+        }
+
+        if(drawingGrid[y][x].animationFrame === 0 || drawingGrid[y][x].animationFrame ===12){
+          drawingGrid[y][x] = drawingGrid[y][x].number;
+        }
+      }
+
+      if (movesArray[y][x] && (mode === "pvp" || currentPlayer === BLACK)){
+        let theImage = currentPlayer - 1 ? blackGhostTile: whiteGhostTile;
+        image(theImage,startingImageX+x*gridUnit, startingImageY+y*gridUnit, theImage.width*resizingRatio, theImage.height*resizingRatio);
+      }
+      
+    }
+  }
+}
+
+function displayScore(){
+  text(blackTileCount, width/2-6*gridUnit, height/2+gridUnit*0.5);
+  text(whiteTileCount, width/2+6*gridUnit, height/2+gridUnit*0.5);
+
+  if (currentPlayer === BLACK){
+    image(blackTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
+    image(whiteGhostTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
+  }
+  else{
+    image(blackGhostTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
+    image(whiteTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
+  }
 }
 
 function displayWinScreen(){
@@ -375,3 +372,34 @@ function displayWinScreen(){
     text(`CONGRATULATIONS, ${theWinner} WON!`, x, y);
   }
 }
+
+function setCursor(){
+  let x = Math.floor((mouseX-startingMouseX)/gridUnit);
+  let y = Math.floor((mouseY-startingMouseY)/gridUnit);
+  if (y<GRID_DIMENSIONS && y>=0 && x<GRID_DIMENSIONS && x>=0 && movesArray[y][x]&&(currentPlayer === BLACK || mode === "pvp")){
+    cursor(HAND);
+  }
+  else{
+    cursor(ARROW);
+  }
+}
+
+function mousePressed(){
+  let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
+  let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
+
+  if(mode === "pvp" || currentPlayer === BLACK){
+    if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >=0 && playerY <GRID_DIMENSIONS){
+      playerMoves(playerX, playerY);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
