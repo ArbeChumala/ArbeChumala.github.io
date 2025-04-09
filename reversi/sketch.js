@@ -358,50 +358,71 @@ function determineWinner(){
 }
 
 function displayGrid(){
+  //displays the board
   image(board, width/2, height/2, board.width*resizingRatio, board.height*resizingRatio);
 
+  //iterates through all tiles
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for(let x = 0; x<GRID_DIMENSIONS; x++){
 
+      //draws a black tile on a black square
       if (drawingGrid[y][x]===BLACK){
         image(blackTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, blackTile.width*resizingRatio, blackTile.height*resizingRatio);
       }
+
+      //draws a white tile on a white square
       else if (drawingGrid[y][x]===WHITE){
         image(whiteTile, startingImageX+x*gridUnit, startingImageY+y*gridUnit, whiteTile.width*resizingRatio, whiteTile.height*resizingRatio);
       }
+
+      //since animated tiles are objects, they won't be registered as being white, black, or empty
       else if (drawingGrid[y][x] !== EMPTY){
+
+        //selects the correct frame out of the animation frame array
         let img = animationFrameArray[drawingGrid[y][x].animationFrame];
+
+        //the size will be greater when the animation frame is closer to the middle - this allows the tile to appear "higher up" when in mid-air
         let sizeFactor = (-abs(drawingGrid[y][x].animationFrame-6)+7)/10;
+
+        //displays the animation frame
         image(img, startingImageX+x*gridUnit, startingImageY+y*gridUnit,img.width*resizingRatio, img.height*resizingRatio+img.height*sizeFactor);
       }
       
+      //only updates the animation every n frames, where n = ANIMATION_DELAY
       if(frameCount%ANIMATION_DELAY === 0){
+
+        //the animation moves forward to turn into a white tile
         if (drawingGrid[y][x].number === WHITE){
           drawingGrid[y][x].animationFrame ++;
         }
-  
+
+        //backwards to turn into a black tile
         else if (drawingGrid[y][x].number === BLACK){
           drawingGrid[y][x].animationFrame --;
         }
 
+        //if it is at the end of the animation, it turns back into a regular tile
         if(drawingGrid[y][x].animationFrame === 0 || drawingGrid[y][x].animationFrame ===12){
           drawingGrid[y][x] = drawingGrid[y][x].number;
         }
       }
 
+      //will only display the possible moves (50% opacity) if the player is a human
       if (movesArray[y][x] && (mode === "pvp" || currentPlayer === BLACK)){
         let theImage = currentPlayer - 1 ? blackGhostTile: whiteGhostTile;
         image(theImage,startingImageX+x*gridUnit, startingImageY+y*gridUnit, theImage.width*resizingRatio, theImage.height*resizingRatio);
       }
-      
     }
   }
 }
 
 function displayScore(){
+  //displays the score for each player
+  textSize(40);
   text(blackTileCount, width/2-6*gridUnit, height/2+gridUnit*0.5);
   text(whiteTileCount, width/2+6*gridUnit, height/2+gridUnit*0.5);
 
+  //the tile that is opaque will indicate the current player
   if (currentPlayer === BLACK){
     image(blackTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
     image(whiteGhostTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
@@ -410,23 +431,38 @@ function displayScore(){
     image(blackGhostTile, width/2-6*gridUnit, height/2-gridUnit, blackTile.width*resizingRatio*1.5, blackTile.height*resizingRatio*1.5);
     image(whiteTile, width/2+6*gridUnit, height/2-gridUnit, whiteTile.width*resizingRatio*1.5, whiteTile.height*resizingRatio*1.5);
   }
+
+  //displays some instructions
+  if(mode === "pvp"){
+    textSize(15);
+    text("Press B to switch to Player versus Bot Mode", width/2, height-20);
+  }
+  else if(mode === "pvb"){
+    textSize(15);
+    text("Press P to switch to Player versus Player Mode", width/2, height-20);
+  }
+  text("Press R to Reset", width/2, height-40);
 }
 
 function displayWinScreen(){
+  //displays the win screen if the game is over
   if(gameOver){
     let x = noise(noiseTimer, 0)*width;
     let y = noise(0, noiseTimer)*height;
   
     noiseTimer += DELTA_NOISE_TIMER;
-  
+
     textSize(70);
     text(`CONGRATULATIONS, ${theWinner} WON!`, x, y);
   }
 }
 
 function setCursor(){
+  //finds the x and y coordinates (with respect to the grid cells) of the mouse
   let x = Math.floor((mouseX-startingMouseX)/gridUnit);
   let y = Math.floor((mouseY-startingMouseY)/gridUnit);
+
+  //if the mouse is on a tile that can be played, the cursor changes to a hand
   if (y<GRID_DIMENSIONS && y>=0 && x<GRID_DIMENSIONS && x>=0 && movesArray[y][x]&&(currentPlayer === BLACK || mode === "pvp")){
     cursor(HAND);
   }
@@ -436,12 +472,36 @@ function setCursor(){
 }
 
 function mousePressed(){
+  //finds the x and y coordinates (with respect to the grid cells) of the mouse
   let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
   let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
 
+  //either the mode is pvp and either colour can play by clicking, or it is against the bot and only black can play by clicking
   if(mode === "pvp" || currentPlayer === BLACK){
-    if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >=0 && playerY <GRID_DIMENSIONS){
+    if (playerX >=0 && playerX <GRID_DIMENSIONS && playerY >= 0 && playerY < GRID_DIMENSIONS){
       playerMoves(playerX, playerY);
     }
   }
+}
+
+function keyPressed(){
+  if (key === "p" && mode === "pvb"){
+    resetGame();
+    mode = "pvp";
+  }
+  else if (key === "b" && mode === "pvp"){
+    resetGame();
+    mode = "pvb";
+  }
+  else if (key === "r"){
+    resetGame();
+  }
+}
+
+function resetGame(){
+  grid = generateStartGrid();
+  drawingGrid = structuredClone(grid);
+  gameOver = false;
+  currentPlayer = WHITE;
+  toggleCurrentPlayer();
 }
