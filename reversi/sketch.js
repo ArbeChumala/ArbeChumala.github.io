@@ -78,6 +78,7 @@ function setup(){
 }
 
 function windowResized(){
+  //allows canvas to be resizable
   setupCanvas();
 }
 
@@ -107,22 +108,26 @@ function draw(){
 }
 
 function generateEmptyGrid(){
+  //generates a new 8x8 grid with empty tiles
+
   let newGrid = [];
   
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     newGrid.push([]);
-    
+
     for (let x = 0; x<GRID_DIMENSIONS; x++){
       newGrid[y].push(EMPTY);
     }
   }
-  
+
   return newGrid;
 }
 
 function generateStartGrid(){
+  //generates an empty grid
   let newGrid = generateEmptyGrid();
 
+  //places tiles based on reversi starting position
   newGrid[3][3] = WHITE;
   newGrid[3][4] = BLACK;
   newGrid[4][3] = BLACK;
@@ -132,30 +137,49 @@ function generateStartGrid(){
 }
 
 function findMoves(thePlayer) {
+  //General Conext: In order for a move to be playable, a new tile, when placed in that position, should "connect"
+  //in a diagonal or horizontal line to another tile of the same colour. Connection can only occur if all the tiles between
+  //are the opposite colour. When I wroe this function, I started from the tiles currently on the board, and went
+  //outwards to find lines where "connection points" could be placed.
+
+  //boolean that is later returned
   let moveFound = false;
+
+  //possible moves are refreshed after each turn
   movesArray = generateEmptyGrid();
 
-
+  //iterates through all tiles
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for (let x = 0; x<GRID_DIMENSIONS; x++){
 
+      //the starting position can only be the player itself
       if (grid[y][x] === thePlayer){
+
+        //there are 8 directions in which you can protrude out of the tile
+        //ix and iy represent the change in x and the change in y for each direction (when same index value)
         let ix = [1, 1, 0, -1, -1, -1, 0, 1];
         let iy = [0, 1, 1, 1, 0, -1, -1, -1];
         
+        //each direction is explored by this loop (N, NE, E, etc.)
         for (let i = 0; i<8; i++){
           let counter = 1;
 
-          //place you're looking is not white or white is Playing
+          //a connection line must cross over only the opposite colour tiles, so this while loop runs based on that conditional
           while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
                  x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
                  grid[y+iy[i]*counter][x+ix[i]*counter] !== thePlayer && 
                  grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+            //for every change in the counter, the change in x and the change in y will be multiplied, thus checking a new tile
             counter++;
           }
+
+          //the connection line can only be finished if the final space is empty
           if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
              x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
-             grid[y+iy[i]*counter][x+ix[i]*counter] === EMPTY && counter>1){
+             grid[y+iy[i]*counter][x+ix[i]*counter] === EMPTY && 
+             counter>1){
+            
+            //the movesArray will end up showing the amount of tiles that are taken over by the connection line
             movesArray[y+iy[i]*counter][x+ix[i]*counter] += counter-1;
             moveFound = true;
           }
@@ -163,6 +187,8 @@ function findMoves(thePlayer) {
       }
     }
   }
+
+  //returns true if a move was found (if a move is not possible, a player's turn will be skipped)
   return moveFound;
 }
 
