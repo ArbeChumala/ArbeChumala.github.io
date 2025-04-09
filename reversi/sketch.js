@@ -193,6 +193,7 @@ function findMoves(thePlayer) {
 }
 
 function playerMoves(x, y){
+  //only makes a move if it is a legal move (at least one tile will be gained)
   if (movesArray[y][x]){
     changeGrid(x, y);
     updateTileCount();
@@ -201,35 +202,49 @@ function playerMoves(x, y){
 }
 
 function changeGrid(x, y){
+  //uses the same indexes as the findMoves() function
   let ix = [1, 1, 0, -1, -1, -1, 0, 1];
   let iy = [0, 1, 1, 1, 0, -1, -1, -1];
-  
+
+  //updates the drawingGrid for each move
   drawingGrid = structuredClone(grid);
   
+  //looking for connection lines in all 8 possible directions
   for (let i = 0; i<8; i++){
     let counter = 1;
 
-    //place you're looking for is the current player
+    //tiles in the middle of the connection line must be the opposite colour
     while (y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
             x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
             grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && 
             grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
+
+      //counter will increase for each tile that is part of the line
       counter++;
     }
-    //you have stopped and can only mark it if it is empty
+
+    //if the tile found at the end of the line is the current player, then they will go backwards and fill in the tiles that make the line
     if(y+iy[i]*counter >=0 && y+iy[i]*counter < GRID_DIMENSIONS &&
         x+ix[i]*counter >=0 && x+ix[i]*counter < GRID_DIMENSIONS &&
         grid[y+iy[i]*counter][x+ix[i]*counter] === currentPlayer && 
         counter>1){
+      
+      //when the counter goes down, it will cover all of the tiles until it hits the new tile 
       for (counter; counter >=0; counter --){
+
+        //the tiles that will be animated are turned into objects and the animation direction is determined by the original colour of the tile
         let flippingTile = {
           number: currentPlayer,
           animationFrame: grid[y+iy[i]*counter][x+ix[i]*counter] === WHITE ? 12:0,
         };
+
+        //if the tile is the opposite player, then the tile must be flipped (animated) on the drawing Grid
         if (grid[y+iy[i]*counter][x+ix[i]*counter] !== currentPlayer && grid[y+iy[i]*counter][x+ix[i]*counter] !== EMPTY){
           grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
           drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = flippingTile;
         }
+
+        //if the cell is empty, then the tile will just be placed
         else{
           grid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
           drawingGrid[y+iy[i]*counter][x+ix[i]*counter] = currentPlayer;
@@ -237,13 +252,14 @@ function changeGrid(x, y){
       }
     }      
   }
-
 }
 
 function toggleCurrentPlayer(){
+  //uses a ternary operator to concisely toggle the player
   currentPlayer = currentPlayer === BLACK ? WHITE: BLACK;
   let otherPlayer = currentPlayer === BLACK ? WHITE: BLACK;
   
+  //if the new player has no moves, it will either toggle the player again or cut to the win screen
   if (!findMoves(currentPlayer)){
     if(findMoves(otherPlayer)){
       toggleCurrentPlayer();
@@ -255,9 +271,11 @@ function toggleCurrentPlayer(){
 }
 
 function updateTileCount(){
+  //resets global variables to zero until recounted
   whiteTileCount = 0;
   blackTileCount = 0;
 
+  //iterates through the 2d array to count each kind of tile
   for (let y = 0; y<GRID_DIMENSIONS; y++){
     for(let x = 0; x<GRID_DIMENSIONS; x++){
       if (grid[y][x] === WHITE){
@@ -271,6 +289,7 @@ function updateTileCount(){
 }
 
 function startBotTimer(){
+  //waits one second after the human plays for the bot to move
   if (!timerStarted && currentPlayer === WHITE && mode === "pvb"){
     setTimeout(botMoves, 1000);
     timerStarted = true;
@@ -278,56 +297,62 @@ function startBotTimer(){
 }
 
 function botMoves(){
-  if(currentPlayer === WHITE && mode=== "pvb"){
+  //the bot will always be white
+  if(currentPlayer === WHITE && mode === "pvb"){
+
+    //intializing variables...
     let maxGain = 0;
     let botX;
     let botY;
     let moveFound = false;
 
-    if(findMoves(currentPlayer)){
+    for(let y = 0; y<GRID_DIMENSIONS; y++){
+      for(let x = 0; x<GRID_DIMENSIONS; x++){
+
+        //it will initially avoid playing squares that would allow the other player to gain a corner
+        if(!((y===1 || y===6||y===0||y===7)&& (x===1 ||x===6||x===0||x===7))){
+          if (movesArray[y][x] > maxGain){
+            maxGain = movesArray[y][x];
+            botX = x;
+            botY = y;
+            moveFound = true; //indicates that a move has been found, even after excluding certain squares
+          }
+        }
+      }
+    }
+
+    //will check through the entire array if no move is found
+    if(!moveFound){
       for(let y = 0; y<GRID_DIMENSIONS; y++){
         for(let x = 0; x<GRID_DIMENSIONS; x++){
-          if(!((y===1 || y===6||y===0||y===7)&& (x===1 ||x===6||x===0||x===7))){
-            if (movesArray[y][x] > maxGain){
-              maxGain = movesArray[y][x];
-              botX = x;
-              botY = y;
-              moveFound = true;
-            }
-          }
-        }
-      }
-
-      if(!moveFound){
-        for(let y = 0; y<GRID_DIMENSIONS; y++){
-          for(let x = 0; x<GRID_DIMENSIONS; x++){
-            if (movesArray[y][x] > maxGain){
-              maxGain = movesArray[y][x];
-              botX = x;
-              botY = y;
-            }
-          }
-        }
-      }
-
-      for(let y = 0; y<8; y+=7){
-        for(let x = 0; x<8; x+=7){
-          if(movesArray[y][x]){
-            botY = y;
+          if (movesArray[y][x] > maxGain){
+            maxGain = movesArray[y][x];
             botX = x;
+            botY = y;
           }
         }
       }
-      
-      console.log(movesArray);
-      console.log(botX, botY);
-      playerMoves(botX, botY);
-      timerStarted = false;
     }
+
+    //the highest priority areas are the corners, so it will always take these if possible
+    for(let y = 0; y<8; y+=7){
+      for(let x = 0; x<8; x+=7){
+        if(movesArray[y][x]){
+          botY = y;
+          botX = x;
+        }
+      }
+    }
+    
+    //sends its final move and restarts the timer boolean
+    playerMoves(botX, botY);
+    timerStarted = false;
   }
+
 }
 
 function determineWinner(){
+  //very advanced logic here... having more tiles means you win
   theWinner = whiteTileCount > blackTileCount ? "WHITE":"BLACK";
   gameOver = true;
 }
@@ -420,12 +445,3 @@ function mousePressed(){
     }
   }
 }
-
-
-
-
-
-
-
-
-
