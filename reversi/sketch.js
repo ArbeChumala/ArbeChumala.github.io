@@ -498,6 +498,7 @@ function mousePressed(){
 }
 
 function keyPressed(){
+  //switches the mode
   if (key === "p" && mode === "pvb"){
     resetGame();
     mode = "pvp";
@@ -512,6 +513,7 @@ function keyPressed(){
 }
 
 function resetGame(){
+  //resets the game board
   grid = generateStartGrid();
   drawingGrid = structuredClone(grid);
   gameOver = false;
