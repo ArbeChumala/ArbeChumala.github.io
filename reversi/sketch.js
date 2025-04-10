@@ -419,6 +419,12 @@ function displayGrid(){
 }
 
 function displayScore(){
+  //displays the title and objective
+  textSize(70);
+  text("Reversi", width/2, 65);
+  textSize(15);
+  text("Gain as many tiles as possible", width/2, 90);
+
   //displays the score for each player
   textSize(40);
   text(blackTileCount, width/2-6*gridUnit, height/2+gridUnit*0.5);
@@ -510,5 +516,6 @@ function resetGame(){
   drawingGrid = structuredClone(grid);
   gameOver = false;
   currentPlayer = WHITE;
+  updateTileCount();
   toggleCurrentPlayer();
 }
