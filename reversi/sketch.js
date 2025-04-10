@@ -42,6 +42,7 @@ let whiteGhostTile;
 let gameFont;
 let board;
 let animationFrameArray = [];
+let jazzMusic;
 
 //coordinates and image size shortcuts
 let resizingRatio;
@@ -60,6 +61,7 @@ function preload(){
   whiteGhostTile = loadImage("assets/ghost-white-tile.png");
   blackGhostTile = loadImage("assets/ghost-black-tile.png");
   gameFont = loadFont("assets/gamefont.otf");
+  jazzMusic = loadSound("assets/jazz-music.mp3");
   for (let i = 0; i<=12; i++){
     animationFrameArray.push(loadImage(`assets/animation-frames/${i}.png`));
   }
@@ -472,6 +474,11 @@ function setCursor(){
 }
 
 function mousePressed(){
+  //plays music on first click
+  if (!jazzMusic.isPlaying()){
+    jazzMusic.loop();
+  }
+
   //finds the x and y coordinates (with respect to the grid cells) of the mouse
   let playerX = Math.floor((mouseX-startingMouseX)/gridUnit);
   let playerY = Math.floor((mouseY-startingMouseY)/gridUnit);
