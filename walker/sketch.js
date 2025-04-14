@@ -46,7 +46,7 @@ function spawnWalker(x, y){
   let b = random(255);
 
   let someColor = color(r, g, b);
-  let someWalker = (new Walker(x, y, someColor));
+  let someWalker =new Walker(x, y, someColor);
 
   theWalkers.push(someWalker);
 }
