@@ -16,6 +16,7 @@
 - [Fireworks OOP](fireworks)
 - [Connected Nodes OOP](nodes)
 - [Local Storage](local-storage)
+- [OOP Inheritance](inheritance)
 
 # Cs30 Projects
 - [Interactive Scene](interactive-scene)
