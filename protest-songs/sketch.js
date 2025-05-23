@@ -52,9 +52,9 @@ for(let main of mainRooms){
 }
 
 function preload(){
-  mapBackgroundImage = loadImage("assets/map-bg.png");
+  mapBackgroundImage = loadImage("assets/mapmap.png");
   buttonClickSound = loadSound("assets/button-sound.m4a");
-  locationPinImage = loadImage("assets/location-button.png");
+  locationPinImage = loadImage("assets/pin.png");
   poppinsBold = loadFont("assets/poppins-bold.ttf");
 
   tiaMV = createVideo("assets/tia/mv.mp4");
@@ -63,7 +63,7 @@ function preload(){
   sonMV.hide();
   bikoMV = createVideo("assets/biko/mv.mp4");
   bikoMV.hide();
-  startingVideo = createVideo("assets/start.mp4");
+  startingVideo = createVideo("assets/start.mov");
   startingVideo.hide();
   startingVideo.noLoop();
   
@@ -155,7 +155,7 @@ function draw() {
       startTimeTwo = millis();
     }
     else{
-      background(141, 217, 197);
+      background(10, 45, 49);
       imageMode(CENTER);
       image(mapBackgroundImage, width/2, height/2, mapBackgroundImage.width*0.5, mapBackgroundImage.height*0.5);
 
