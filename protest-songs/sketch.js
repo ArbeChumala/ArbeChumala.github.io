@@ -1,14 +1,26 @@
 
 
-let gameRoom = "main";
+let gameRoom = "start";
 let nextGameRoom;
 
 let mapBackgroundImage;
 let buttonClickSound;
 let locationPinImage;
 let poppinsBold;
-let tiaMV;
 let backButtonImage;
+
+
+let tiaMV;
+let bikoMV;
+let sonMV;
+let endingVideo;
+let startingVideo;
+
+let waitTime = 60000;
+let startTime;
+
+let startTimeTwo;
+let waitTimeTwo = 110000;
 
 let backButton;
 
@@ -20,16 +32,17 @@ let tiaImageMap = new Map();
 let sonImageMap = new Map();
 let bikoImageMap = new Map();
 
-let imageArray = ["0", "1", "2", "3", "bg", "cover", "lyrics"];
+let imageArray = ["0", "1", "2", "3", "bg", "cover", "lyrics", "social-context"];
 
 let tiaButtons = [];
 let sonButtons = [];
 let bikoButtons = [];
 
 let roomsMap = new Map();
+let roomsVisited = new Map();
 
 let mainRooms = ["america", "biko", "son"];
-let subRooms = ["_MV", "_lyrics", "_satire"];
+let subRooms = ["_MV", "_lyrics", "_satire", "_social"];
 
 for(let main of mainRooms){
   roomsMap.set(main, "main");
@@ -43,8 +56,20 @@ function preload(){
   buttonClickSound = loadSound("assets/button-sound.m4a");
   locationPinImage = loadImage("assets/location-button.png");
   poppinsBold = loadFont("assets/poppins-bold.ttf");
+
   tiaMV = createVideo("assets/tia/mv.mp4");
   tiaMV.hide();
+  sonMV = createVideo("assets/son/mv.mp4");
+  sonMV.hide();
+  bikoMV = createVideo("assets/biko/mv.mp4");
+  bikoMV.hide();
+  startingVideo = createVideo("assets/start.mp4");
+  startingVideo.hide();
+  startingVideo.noLoop();
+  
+  endingVideo = createVideo("assets/end.mov");
+  endingVideo.hide();
+
   backButtonImage  = loadImage("assets/back.png");
 
   for(let image of imageArray){
@@ -55,7 +80,9 @@ function preload(){
 }
 
 function windowResized(){
-  makeTheCanvas();
+  if(!gameRoom[gameRoom.length -1] === "s"){
+    makeTheCanvas();
+  }
 }
 
 function makeTheCanvas(){
@@ -94,23 +121,73 @@ function setup() {
   textFont(poppinsBold);
 
   videos.push(tiaMV);
+  videos.push(bikoMV);
+  videos.push(sonMV);
+  videos.push(startingVideo);
+  videos.push(endingVideo);
+
+  startTime = millis();
 
   backButton = new BackButton();
 }
 
 function draw() {
-  if (gameRoom === "main"){
-    background(141, 217, 197);
+  if(gameRoom === "start"){
+    
+    background(23);
+    startingVideo.play();
     imageMode(CENTER);
-    image(mapBackgroundImage, width/2, height/2, mapBackgroundImage.width*0.5, mapBackgroundImage.height*0.5);
+    startingVideo.volume(0.5);
+    image(startingVideo, width/2, height/2, width, height);
 
-    for(let button of locationButtons){
-      button.show();
-      button.update();
+    if(millis() - startTime > waitTime || keyIsDown(13)){
+      startingVideo.pause();
+      nextGameRoom = "main";
+      let someBackground = new FadingBackground(0, 0, 0);
+      fadingBackgrounds.push(someBackground);
     }
   }
+  else if (gameRoom === "main"){
+    if (allRoomsVisited() && keyIsDown(13)){
+      let someBackground = new FadingBackground(0, 0, 0);
+      fadingBackgrounds.push(someBackground);
+      nextGameRoom = "conclusion";
+      startTimeTwo = millis();
+    }
+    else{
+      background(141, 217, 197);
+      imageMode(CENTER);
+      image(mapBackgroundImage, width/2, height/2, mapBackgroundImage.width*0.5, mapBackgroundImage.height*0.5);
+
+      for(let button of locationButtons){
+        button.show();
+        button.update();
+      }
+    }
+    if(allRoomsVisited()){
+      fill(255);
+      text("Press Enter for Conclusion", width/2, height-150);
+    }
+  }
+  else if (gameRoom === "conclusion"){
+    imageMode(CENTER);
+    endingVideo.play();
+    endingVideo.volume(0.5);
+    image(endingVideo, width/2, height/2, width, height);
+    if(millis() - startTimeTwo > waitTimeTwo || keyIsDown(13)){
+      startingVideo.pause();
+      nextGameRoom = "black";
+      let someBackground = new FadingBackground(0, 0, 0);
+      fadingBackgrounds.push(someBackground);
+    }
+  }
+  else if (gameRoom === "black"){
+    background(0);
+  }
   else{
-    roomDrawLoop(gameRoom.split("_")[0]);
+    if(gameRoom !== "main" && gameRoom !== "start"){
+      roomDrawLoop(gameRoom.split("_")[0]);
+    }
   }
 
   if(roomsMap.has(gameRoom)){
@@ -128,12 +205,20 @@ function draw() {
   }
 }
 
+function allRoomsVisited(){
+  return roomsVisited.size === 3;
+}
+
 function roomDrawLoop(room){
   let imageMap;
   let video;
   let buttons;
   let title;
   let artist;
+
+  if(!roomsVisited.has(room)){
+    roomsVisited.set(room, true);
+  }
 
   if(room === "america"){
     imageMap = tiaImageMap;
@@ -177,9 +262,11 @@ function roomDrawLoop(room){
 
   else if(gameRoom === room + "_MV"){
     background(0);
+    image(imageMap.get("bg"), width/2, height/2, width, width);
+
     video.play();
     video.volume(0.5);
-    image(video, width/2-300, height/2, 800, 450);
+    image(video, width/2, height/2, 1000, 563);
   }
 
   else if(gameRoom === room + "_lyrics"){
@@ -193,40 +280,10 @@ function roomDrawLoop(room){
     image(imageMap.get("lyrics"), 0, 0, width, imageMap.get("lyrics").height*imageResizeRatio);
     imageMode(CENTER);
   }
-}
-
-function americaDrawLoop(){
-  if (gameRoom === "america"){
+  else if (gameRoom === room + "_social"){
     background(23);
-    image(tiaImageMap.get("bg"), width/2, height/2, width, width);
-    image(tiaImageMap.get("cover"), width/2, height/2, height*0.6, height*0.6);
-   
-    for(let button of tiaButtons){
-      button.show();
-      button.update();
-    }
-
-    fill(255);
-    textSize(30);
-    text("THIS IS AMERICA", width/2, height*0.8 + 75);
-
-    textSize(15);
-    text("Childish Gambino", width/2, height*0.8 + 100);
-  }
-
-  else if(gameRoom === "america_MV"){
-    background(0);
-    tiaMV.play();
-    tiaMV.volume(0.5);
-    image(tiaMV, width/2-300, height/2, 800, 450);
-  }
-
-  else if(gameRoom === "america_lyrics"){
-    background(0);
-    imageMode(CORNER);
-    let imageResizeRatio = width/tiaImageMap.get("lyrics").width;
-    createCanvas(width, 5000);
-    image(tiaImageMap.get("lyrics"), 0, 0, width, tiaImageMap.get("lyrics").height*imageResizeRatio);
+    let imageResizeRatio = 0.9*width/imageMap.get("social-context").width;
+    image(imageMap.get("social-context"), width/2, height/2, 0.9*width, imageMap.get("social-context").height*imageResizeRatio);
   }
 }
 
@@ -263,7 +320,7 @@ class LocationButton{
   }
 
   isUnderMouse(){
-    return Math.abs(mouseX - this.x) < locationPinImage.width * this.imageResizeRatio && Math.abs(mouseY - this.y) < locationPinImage.height * this.imageResizeRatio;
+    return Math.abs(mouseX - this.x) < locationPinImage.width/2 * this.imageResizeRatio && Math.abs(mouseY + 30 - this.y) < locationPinImage.height/2 * this.imageResizeRatio;
   }
 }
 
@@ -310,6 +367,9 @@ class RectangleButton{
       }
       else if(this.name === 1){
         nextGameRoom = gameRoom + "_lyrics";
+      }
+      else if(this.name === 2){
+        nextGameRoom = gameRoom + "_social";
       }
 
       let someBackground = new FadingBackground(0, 0, 0);
@@ -392,7 +452,7 @@ class FadingBackground{
   }
   
   update(){
-    if(this.a === 255){
+    if(this.a >= 255){
       gameRoom = nextGameRoom;
 
       for(let video of videos){
@@ -401,12 +461,13 @@ class FadingBackground{
         video.hide();
         video.volume(0);
       }
+      makeTheCanvas();
     }
     if(nextGameRoom !== gameRoom){
-      this.a +=5;
+      this.a +=10;
     }
     else{
-      this.a -=5;
+      this.a -=10;
     }
   }
 
