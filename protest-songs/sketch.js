@@ -32,7 +32,7 @@ let tiaImageMap = new Map();
 let sonImageMap = new Map();
 let bikoImageMap = new Map();
 
-let imageArray = ["0", "1", "2", "3", "bg", "cover", "lyrics", "social-context"];
+let imageArray = ["0", "1", "2", "3", "bg", "cover", "lyrics", "social-context", "satire"];
 
 let tiaButtons = [];
 let sonButtons = [];
@@ -42,7 +42,7 @@ let roomsMap = new Map();
 let roomsVisited = new Map();
 
 let mainRooms = ["america", "biko", "son"];
-let subRooms = ["_MV", "_lyrics", "_satire", "_social"];
+let subRooms = ["_MV", "_lyrics", "_satire", "_social", "_satire"];
 
 for(let main of mainRooms){
   roomsMap.set(main, "main");
@@ -166,7 +166,7 @@ function draw() {
     }
     if(allRoomsVisited()){
       fill(255);
-      text("Press Enter for Conclusion", width/2, height-150);
+      text("PRESS ENTER FOR CONCLUSION", width/2, height-50);
     }
   }
   else if (gameRoom === "conclusion"){
@@ -285,6 +285,13 @@ function roomDrawLoop(room){
     let imageResizeRatio = 0.9*width/imageMap.get("social-context").width;
     image(imageMap.get("social-context"), width/2, height/2, 0.9*width, imageMap.get("social-context").height*imageResizeRatio);
   }
+  else if (gameRoom === room + "_satire"){
+    imageMode(CORNER);
+    background(23);
+    let imageResizeRatio = width/imageMap.get("satire").width;
+    image(imageMap.get("satire"), 0, 0, width, imageMap.get("satire").height*imageResizeRatio);
+    imageMode(CENTER);
+  }
 }
 
 //classes/////////////////////////////////////////////////////////////////////////////////////
@@ -370,6 +377,9 @@ class RectangleButton{
       }
       else if(this.name === 2){
         nextGameRoom = gameRoom + "_social";
+      }
+      else if(this.name === 3){
+        nextGameRoom = gameRoom + "_satire";
       }
 
       let someBackground = new FadingBackground(0, 0, 0);
