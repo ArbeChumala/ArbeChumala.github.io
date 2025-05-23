@@ -175,7 +175,7 @@ function draw() {
     endingVideo.volume(0.5);
     image(endingVideo, width/2, height/2, width, height);
     if(millis() - startTimeTwo > waitTimeTwo || keyIsDown(13)){
-      startingVideo.pause();
+      endingVideo.pause();
       nextGameRoom = "black";
       let someBackground = new FadingBackground(0, 0, 0);
       fadingBackgrounds.push(someBackground);
