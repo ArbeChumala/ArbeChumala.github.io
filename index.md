@@ -17,6 +17,7 @@
 - [Connected Nodes OOP](nodes)
 - [Local Storage](local-storage)
 - [OOP Inheritance](inheritance)
+- [Colour Fun](colours)
 
 # Cs30 Projects
 - [Interactive Scene](interactive-scene)
