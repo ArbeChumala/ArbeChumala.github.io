@@ -13,8 +13,8 @@ function setup() {
 }
 
 function draw() {
-  r = g === 255 ? r === 255 ? r : r+5 : r;
-  g = b === 255 ? g === 255 ? g : g+5 : g;
-  b = b === 255 ? b: b+5;
+  r = g !== 255 || r === 255 ? r : r+1;
+  g = b !== 255 || g === 255 ? g : g+1;
+  b = b === 255 ? 255: b+1;
   background(r, g, b);
 }
